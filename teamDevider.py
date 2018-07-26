@@ -103,7 +103,7 @@ async def on_message(message):
             print('===devide===')
             m=startDevide(message.content)
             await bot.send_message(message.channel, m)
-        elif message.content.startswith("!count"):
+        elif message.content.startswith("!wc"):
             print('===count===')
             m=countMembers(message.content)
             await bot.send_message(message.channel, m)
