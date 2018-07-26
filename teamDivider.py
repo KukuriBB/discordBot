@@ -61,7 +61,7 @@ def startDivide(content):
         
     else:
         print(channel.name)
-        print("%d men in team" % div)
+        print("%d men a team" % div)
         
         randomList=random.sample(channel.voice_members, len(channel.voice_members))
         m=""
@@ -103,7 +103,7 @@ async def on_message(message):
             print('===divide===')
             m=startDivide(message.content)
             await bot.send_message(message.channel, m)
-        elif message.content.startswith("!wc"):
+        elif message.content.startswith("!count"):
             print('===count===')
             m=countMembers(message.content)
             await bot.send_message(message.channel, m)
