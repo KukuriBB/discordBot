@@ -221,7 +221,7 @@ async def on_ready():
     print("  name: %s" % bot.user.name)
     print("  id:   %s" % bot.user.id)
     #for member in bot.get_all_members():
-    testCommands()
+    #testCommands()
     print('===ready===')
 
 """ メッセージを受け取ったときに起動 """
