@@ -5,6 +5,36 @@ import sys
 bot = discord.Client()
 commandListFile="commandList.txt"
 
+def testCommands():
+    print( parseMessage("hoge") )
+    print( parseMessage("help") )
+    print( parseMessage("list") )
+    print( parseMessage("roll") )
+    print( parseMessage("roll --help") )
+    print( parseMessage("roll 47166010791952384") )
+    print( parseMessage("roll 471660107919523843") )
+    print( parseMessage("roll 471660107919523845 -n") )
+    print( parseMessage("roll 471660107919523845 -u") )
+    print( parseMessage("roll 471660107919523845") )
+    print( parseMessage("roll 471660107919523845 -n4") )
+    print( parseMessage("roll 471660107919523845 -u4") )
+    print( parseMessage("roll 471660107919523845 472022135179706368") )
+    print( parseMessage("roll\n太朗\n花子\n次郎\nジョン・スミス") )
+    print( parseMessage("roll 471660107919523845\nhoge\nfuga\npya\nfoo\nbar\nyo\nne\nmo\nto") )
+    print( parseMessage("wc") )
+    print( parseMessage("wc --help") )
+    print( parseMessage("wc 47166010791952384") )
+    print( parseMessage("wc 471660107919523843") )
+    print( parseMessage("wc 471660107919523845") )
+    print( parseMessage("wc 471660107919523845 472022135179706368") )
+    print( parseMessage("ls") )
+    print( parseMessage("ls --help") )
+    print( parseMessage("ls 47166010791952384") )
+    print( parseMessage("ls 471660107919523843") )
+    print( parseMessage("ls 471660107919523845") )
+    print( parseMessage("ls 471660107919523845 472022135179706368") )
+    
+    
 """ read file """
 def readCommandList(targets=[], opts=[], members=[]):
     file=open(commandListFile, 'r')
@@ -122,30 +152,35 @@ def roll(channelIDs=[], opts=[], members=[]):
     return m
 
 
-def testCommands():
-    print( parseMessage("hoge") )
-    print( parseMessage("help") )
-    print( parseMessage("list") )
-    print( parseMessage("roll") )
-    print( parseMessage("roll --help") )
-    print( parseMessage("roll 47166010791952384") )
-    print( parseMessage("roll 471660107919523843") )
-    print( parseMessage("roll 471660107919523845 -n") )
-    print( parseMessage("roll 471660107919523845 -u") )
-    print( parseMessage("roll 471660107919523845") )
-    print( parseMessage("roll 471660107919523845 -n4") )
-    print( parseMessage("roll 471660107919523845 -u4") )
-    print( parseMessage("roll 471660107919523845 472022135179706368") )
-    print( parseMessage("roll\n太朗\n花子\n次郎\nジョン・スミス") )
-    print( parseMessage("roll 471660107919523845\nhoge\nfuga\npya\nfoo\nbar\nyo\nne\nmo\nto") )
-    print( parseMessage("wc") )
-    print( parseMessage("wc --help") )
-    print( parseMessage("wc 47166010791952384") )
-    print( parseMessage("wc 471660107919523843") )
-    print( parseMessage("wc 471660107919523845") )
-    print( parseMessage("wc 471660107919523845 472022135179706368") )
+def ls(channelIDs=[], opts=[], stdin=[]):
+    m=""
     
+    """ show help """
+    if not channelIDs or "-help" in opts:
+        m ="使用法: ls <channel ID>\n"
+        m+="\n"
+        m+="--help　このヘルプを表示\n"
+        return m
     
+    for channelID in channelIDs:
+        """ get channel info """
+        channel=bot.get_channel(channelID)
+        if channel==None:
+            m+="Warning: '%s' doesn't exist\n" % channelID
+        
+        elif str(channel.type)=="text":
+            m+="Warning: '%s' is text channel\n" % channel.name
+        
+        else:
+            if len(channelIDs)>1:
+                m+="%s:\n" % channel.name
+            for member in channel.voice_members:
+                m+="%s\n" % member.name
+            m+="\n"
+    
+    return m
+
+
 """ テキストを解析して、返事を生成する """
 def parseMessage(content):
     content=content.split("\n")
@@ -171,7 +206,8 @@ def parseMessage(content):
         "help": readCommandList,
         "list": readCommandList,
         "roll": roll,
-        "wc": wc}
+        "wc": wc,
+        "ls": ls}
     
     func=funcTable.get(cmd)
     if func==None: return None
