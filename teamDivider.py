@@ -145,7 +145,7 @@ def testCommands():
 def parseMessage(content):
     content=content.split("\n")
     
-    argv   =content[0].split(" ")
+    argv   =content[0].strip().split(" ")
     stdin  =content[1:]
     
     cmd=argv[0]
@@ -153,7 +153,7 @@ def parseMessage(content):
     opts   =[]
     for arg in argv[1:]:
         if arg.startswith("-"): opts.append(arg[1:])
-        else:                   targets.append(arg)
+        elif arg!=""          : targets.append(arg)
     
     print("cmd:      %s" % cmd)
     print("targets:  %s" % targets)
