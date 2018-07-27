@@ -4,6 +4,15 @@ import sys
 
 bot = discord.Client()
 
+def readCommandList():
+    file=open('commandList.txt', 'r')
+    m=""
+    
+    for line in file.readlines():
+        m+=line
+        
+    return m
+
 """ count members in specified voice channel """
 def countMembers(targets, opts=[]):
     
@@ -137,10 +146,8 @@ def parseMessage(content):
     
     """ check command """
     if   argv[0]=="help" or argv[0]=="list":
-        m ="コマンドリスト\n"
-        m+="　roll　　　チーム分け\n"
-        m+="　count 　　チャンネル内のメンバーを数える\n"
-        return m
+        return readCommandList()
+        
     elif argv[0]=="roll":
         return startDivide(targets, opts)
         
