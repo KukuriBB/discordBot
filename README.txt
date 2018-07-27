@@ -5,16 +5,20 @@
             ↑から、 setup-x86_64.exeをダウンロードして実行
         2.いじる必要のないところを無視
             ウィンドウのタイトルが
-                Cygwin Setup - Select Packages
+                Cygwin Setup - Choose Download Site(s)
             になるまで「次へ」を押す
-        3.python3のインストール設定
+        3.適当なサイトを選んで「次へ」を押す
+        4.ウィンドウのタイトルが
+              Cygwin Setup - Select Packages
+          になるまで待つ
+        5.python3のインストール設定
             viewのプルダウンメニューをCategoryにする
             searchに python3 と入力
             Pythonの右隣のDefaultをクリックして、Installにする
-        4.gitのインストール設定
+        6.gitのインストール設定
             searchに git と入力
             Develの右隣のDefaultをクリックして、Installにする
-        5.いじる必要のないところを無視
+        7.いじる必要のないところを無視
             終わるまで「次へ」を押す
             ※時間がかかるので、待ち時間でbotの作成まで進めてしまうとよい
             
