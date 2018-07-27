@@ -41,9 +41,10 @@ def wc(channelIDs, opts=[], stdin=[]):
     
     return m
 
-def roll(channelIDs, opts=[], stdin=[]):
+def roll(channelIDs, opts=[], members=[]):
+    m=""
     
-    if not channelIDs or "-help" in opts:
+    if (not members and not channelIDs) or "-help" in opts:
         m ="使用法: roll <channel ID> [options]\n"
         m+="\n"
         m+="　　　-n　チーム数を指定\n"
@@ -64,50 +65,49 @@ def roll(channelIDs, opts=[], stdin=[]):
         else:
             return "Error: unknown option '-%s'" % opt[0]
     
-    channels=[]
-    for channelID in channelIDs:
-        """ get channel info """
-        channel=bot.get_channel(channelID)
-        if channel==None:
-            return "Error: '%s' doesn't exist\n" % channelID
-        
-        elif str(channel.type)=="text":
-            return "Error: '%s' is text channel\n" % channel.name
-        
-        channels.append(channel)
-        
-    m=""
-    for channel in channels:
-        #channel.voice_members=["a","b","c","d","e","f","g","h","i","j"]
-        if not channel.voice_members:
-            m+="Warning: no one is in '%s'\n" % channel.name
-        
-        else:
-            memberNum=len(channel.voice_members)
-            if rule[0]=="u":
-                teamNum=int(memberNum/rule[1]) + (memberNum%rule[1]>0)
-            elif rule[0]=="n":
-                teamNum=rule[1]
-                
-            print("  %s"       % channel.name)
-            print("  %d guys"  % memberNum)
-            print("  %d teams" % teamNum)
+    #members=["a","b","c","d","e","f","g","h","i","j"]
+    if not members:
+        channels=[]
+        for channelID in channelIDs:
+            """ get channel info """
+            channel=bot.get_channel(channelID)
+            if channel==None:
+                return "Error: '%s' doesn't exist\n" % channelID
             
-            random.seed()
-            randomList=random.sample(channel.voice_members, memberNum)
+            elif str(channel.type)=="text":
+                return "Error: '%s' is text channel\n" % channel.name
             
-            teams=[]
-            for i in range(teamNum):
-                teams.append( [] )
+            if not channel.voice_members:
+                m+="Warning: no one is in '%s'\n" % channel.name
             
-            for i in range(len(randomList)):
-                teams[int(i%teamNum)].append( randomList[i].name )
-                
-            for i in range(teamNum):
-                m+="#%d\n" % (i+1)
-                for member in teams[i]:
-                    m+="%s\n" % member
-            #"""
+            else:
+                members.extend(channel.voice_members)
+    
+    memberNum=len(members)
+    if rule[0]=="u":
+        teamNum=int(memberNum/rule[1]) + (memberNum%rule[1]>0)
+    elif rule[0]=="n":
+        teamNum=rule[1]
+        
+    print("  %d guys"  % memberNum)
+    print("  %d teams" % teamNum)
+    
+    random.seed()
+    random.shuffle(members)
+    
+    teams=[]
+    for i in range(teamNum):
+        teams.append( [] )
+    
+    for i in range(len(members)):
+        #teams[int(i%teamNum)].append( members[i].name )
+        teams[int(i%teamNum)].append( str(members[i]) )
+        
+    for i in range(teamNum):
+        m+="#%d\n" % (i+1)
+        for member in teams[i]:
+            m+="　%s\n" % member
+    
     return m
 
 
@@ -122,10 +122,10 @@ def testCommands():
     print( parseMessage("roll 471660107919523845 -n") )
     print( parseMessage("roll 471660107919523845 -u") )
     print( parseMessage("roll 471660107919523845") )
-    print( parseMessage("roll 471660107919523845 472022135179706368") )
-    print( parseMessage("roll -n3 471660107919523845") )
     print( parseMessage("roll 471660107919523845 -n4") )
     print( parseMessage("roll 471660107919523845 -u4") )
+    print( parseMessage("roll 471660107919523845 472022135179706368") )
+    print( parseMessage("roll 471660107919523845\nhoge\nfuga\npya\nfoo\nbar\nyo\nne\nmo\nto") )
     print( parseMessage("wc") )
     print( parseMessage("wc --help") )
     print( parseMessage("wc 47166010791952384") )
