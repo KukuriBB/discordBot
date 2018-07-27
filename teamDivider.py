@@ -52,6 +52,12 @@ def roll(channelIDs, opts=[], members=[]):
         m+="　　　-u　1チームの最大人数を指定\n"
         m+="　　　　　デフォルト: -u2\n"
         m+="　--help　このヘルプを表示\n"
+        m+="\n"
+        m+="2行目以降に列挙した名前でチーム分けをすることもできます\n"
+        m+="ex) roll"
+        m+="    太朗\n"
+        m+="    花子\n"
+        m+="    ジョン・スミス\n"
         return m
     
     """ initialize """
@@ -113,7 +119,6 @@ def roll(channelIDs, opts=[], members=[]):
 
 
 def testCommands():
-    print( parseMessage("cmd file1 file2 -n2 -u4\nhoge\nfuga\npya") )
     print( parseMessage("help") )
     print( parseMessage("list") )
     print( parseMessage("roll") )
@@ -126,6 +131,7 @@ def testCommands():
     print( parseMessage("roll 471660107919523845 -n4") )
     print( parseMessage("roll 471660107919523845 -u4") )
     print( parseMessage("roll 471660107919523845 472022135179706368") )
+    print( parseMessage("roll\n太朗\n花子\n次郎\nジョン・スミス") )
     print( parseMessage("roll 471660107919523845\nhoge\nfuga\npya\nfoo\nbar\nyo\nne\nmo\nto") )
     print( parseMessage("wc") )
     print( parseMessage("wc --help") )
@@ -154,18 +160,21 @@ def parseMessage(content):
     print("options:  %s" % opts)
     print("stdin:    %s" % stdin)
     
-    
     """ check command """
     if   cmd=="help" or cmd=="list":
-        return readCommandList()
+        m=readCommandList()
         
     elif cmd=="roll":
-        return roll(targets, opts, stdin)
+        m=roll(targets, opts, stdin)
         
     elif cmd=="wc":
-        return wc(targets, opts)
+        m=wc(targets, opts)
         
-    return ""
+    else:
+        m=""
+    
+    print("--------------")
+    return m
 
 """ 開始処理 """
 @bot.event
