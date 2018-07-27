@@ -37,7 +37,7 @@ def startDivide(targets, opts=[]):
         return "USAGE: roll <channel ID> [options]\n"
     
     """ initialize """
-    div=2
+    unit=2
     
     """ read options """
     for opt in opts:
@@ -47,7 +47,7 @@ def startDivide(targets, opts=[]):
             if len(opt)==1:
                 return "Error: -n need number (ex: -n4)\n"
                 
-            div=int(opt[1:])
+            unit=int(opt[1:])
     
     channels=[]
     for channelID in targets:
@@ -63,23 +63,33 @@ def startDivide(targets, opts=[]):
         
     m=""
     for channel in channels:
+        #channel.voice_members=["a","b","c","d","e","f","g","h","i","j"]
         if not channel.voice_members:
             m+="Warning: no one is in '%s'\n" % channel.name
         
         else:
+            memberNum=len(channel.voice_members)
+            teamNum=int(memberNum/unit) + (memberNum%unit>0)
+            
             print(channel.name)
-            print("%d men a team" % div)
+            print("%d guys"       % memberNum)
+            print("%d men a team" % unit)
+            print("%d teams"      % teamNum)
             
             random.seed()
-            """
-            randomList=random.sample(channel.voice_members, len(channel.voice_members))
+            randomList=random.sample(channel.voice_members, memberNum)
+            
+            teams=[]
+            for i in range(teamNum):
+                teams.append( [] )
+            
             for i in range(len(randomList)):
-                m+="#" + str(int( (i+div)/div )) + " " + randomList[i].name+"\n"
+                teams[int(i%teamNum)].append( str(randomList[i]) )
                 
-            """
-            randomList=["a","b","c","d","e","f","g","h","i","j"]
-            for i in range(len(randomList)):
-                m+="#" + str(int( (i+div)/div )) + " " + str(randomList[i])+"\n"
+            for i in range(teamNum):
+                m+="#%d" % (i+1)
+                for member in teams[i]:
+                    m+="\t%s\n" % member
             #"""
     return m
 
@@ -125,7 +135,7 @@ async def on_ready():
     print("  name: %s" % bot.user.name)
     print("  id:   %s" % bot.user.id)
     #for member in bot.get_all_members():
-    testCommands()
+    #testCommands()
     print('===ready===')
 
 """ メッセージを受け取ったときに起動 """
