@@ -5,14 +5,14 @@ import sys
 bot = discord.Client()
 
 """ count members in specified voice channel """
-def countMembers(channels, opts=[]):
+def countMembers(targets, opts=[]):
     print('===count===')
     
-    if not channels:
+    if not targets:
         return "USAGE: count <channel ID>"
     
     channels=[]
-    for channelID in channels:
+    for channelID in targets:
         """ set channel """
         channel=bot.get_channel(channelID)
         
@@ -30,10 +30,10 @@ def countMembers(channels, opts=[]):
     
     return m
 
-def startDivide(channels, opts=[]):
+def startDivide(targets, opts=[]):
     print('===divide===')
     
-    if not channels:
+    if not targets:
         return "USAGE: roll <channel ID> [options]"
     
     """ initialize """
@@ -50,13 +50,12 @@ def startDivide(channels, opts=[]):
             div=int(opt[1:])
     
     channels=[]
-    for channelID in channels:
+    for channelID in targets:
         """ get channel info """
         channel=bot.get_channel(channelID)
         if channel==None:
             return "Error: %s doesn't exist" % channelID
         
-        """ check channel type """
         elif str(channel.type)=="text":
             return "Error: '%s' is text channel" % channel.name
         
@@ -73,10 +72,14 @@ def startDivide(channels, opts=[]):
             
             random.seed()
             randomList=random.sample(channel.voice_members, len(channel.voice_members))
-            
             for i in range(len(randomList)):
                 m+="#" + str(int( (i+div)/div )) + " " + randomList[i].name+"\n"
-        
+                
+            """
+            randomList=["a","b","c","d","e","f","g","h","i","j"]
+            for i in range(len(randomList)):
+                m+="#" + str(int( (i+div)/div )) + " " + str(randomList[i])+"\n"
+            """
     return m
 
 
