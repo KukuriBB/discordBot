@@ -6,10 +6,9 @@ bot = discord.Client()
 
 """ count members in specified voice channel """
 def countMembers(targets, opts=[]):
-    print('===count===')
     
     if not targets:
-        return "USAGE: count <channel ID>\n"
+        return "使用法: count <channel ID>\n"
     
     channels=[]
     for channelID in targets:
@@ -17,7 +16,7 @@ def countMembers(targets, opts=[]):
         channel=bot.get_channel(channelID)
         
         if channel==None:
-            return "Error: %s doesn't exist\n" % channelID
+            return "Error: '%s' doesn't exist\n" % channelID
         
         elif str(channel.type)=="text":
             return "Error: '%s' is text channel\n" % channel.name
@@ -31,30 +30,32 @@ def countMembers(targets, opts=[]):
     return m
 
 def startDivide(targets, opts=[]):
-    print('===divide===')
     
     if not targets:
-        return "USAGE: roll <channel ID> [options]\n"
+        m ="使用法: roll <channel ID> [options]\n"
+        m+="\n"
+        m+="  -n    チーム数を指定\n"
+        m+="  -u    1チームの最大人数を指定\n"
+        return m
     
     """ initialize """
-    unit=2
+    rule=["u", 2]
     
     """ read options """
     for opt in opts:
-        """ divitions option """
-        if opt.startswith("n"):
-            """ check extra option """
+        if opt.startswith("n") or opt.startswith("u"):
             if len(opt)==1:
-                return "Error: -n need number (ex: -n4)\n"
-                
-            unit=int(opt[1:])
+                return "Error: '-%s' need number (ex: -%s3)\n" % (opt[0], opt[0])
+            rule=[opt[0], int(opt[1:])]
+        else:
+            return "Error: unknown option '-%s'" % opt[0]
     
     channels=[]
     for channelID in targets:
         """ get channel info """
         channel=bot.get_channel(channelID)
         if channel==None:
-            return "Error: %s doesn't exist\n" % channelID
+            return "Error: '%s' doesn't exist\n" % channelID
         
         elif str(channel.type)=="text":
             return "Error: '%s' is text channel\n" % channel.name
@@ -69,11 +70,13 @@ def startDivide(targets, opts=[]):
         
         else:
             memberNum=len(channel.voice_members)
-            teamNum=int(memberNum/unit) + (memberNum%unit>0)
-            
+            if rule[0]=="u":
+                teamNum=int(memberNum/rule[1]) + (memberNum%rule[1]>0)
+            elif rule[0]=="n":
+                teamNum=rule[1]
+                
             print(channel.name)
             print("%d guys"       % memberNum)
-            print("%d men a team" % unit)
             print("%d teams"      % teamNum)
             
             random.seed()
@@ -84,12 +87,12 @@ def startDivide(targets, opts=[]):
                 teams.append( [] )
             
             for i in range(len(randomList)):
-                teams[int(i%teamNum)].append( str(randomList[i]) )
+                teams[int(i%teamNum)].append( randomList[i].name )
                 
             for i in range(teamNum):
-                m+="#%d" % (i+1)
+                m+="#%d\n" % (i+1)
                 for member in teams[i]:
-                    m+="\t%s\n" % member
+                    m+="%s\n" % member
             #"""
     return m
 
@@ -99,10 +102,12 @@ def testCommands():
     print( parseMessage("roll 47166010791952384") )
     print( parseMessage("roll 471660107919523843") )
     print( parseMessage("roll 471660107919523845 -n") )
+    print( parseMessage("roll 471660107919523845 -u") )
     print( parseMessage("roll 471660107919523845") )
     print( parseMessage("roll 471660107919523845 472022135179706368") )
     print( parseMessage("roll -n3 471660107919523845") )
     print( parseMessage("roll 471660107919523845 -n4") )
+    print( parseMessage("roll 471660107919523845 -u4") )
     print( parseMessage("count") )
     print( parseMessage("count 47166010791952384") )
     print( parseMessage("count 471660107919523843") )
@@ -112,6 +117,8 @@ def testCommands():
     
 """ テキストを解析して、返事を生成する """
 def parseMessage(content):
+    print("$ %s" % content)
+    
     targets=[]
     opts   =[]
     argv  =content.split(" ")
