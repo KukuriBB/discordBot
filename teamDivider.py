@@ -4,7 +4,7 @@ import sys
 
 bot = discord.Client()
 
-def readCommandList():
+def readCommandList(target=[], opts=[], members=[]):
     file=open('commandList.txt', 'r')
     m=""
     
@@ -14,8 +14,14 @@ def readCommandList():
     return m
 
 """ count members in specified voice channel """
-def wc(channelIDs, opts=[], stdin=[]):
+def wc(channelIDs=[], opts=[], stdin=[]):
     m=""
+    
+    if not channelIDs or "-help" in opts:
+        m ="使用法: wc <channel ID>\n"
+        m+="\n"
+        m+="　--help　このヘルプを表示\n"
+        return m
     
     channels=[]
     for channelID in channelIDs:
@@ -31,18 +37,12 @@ def wc(channelIDs, opts=[], stdin=[]):
         else:
             channels.append(channel)
     
-    if not channelIDs or "-help" in opts:
-        m ="使用法: wc <channel ID>\n"
-        m+="\n"
-        m+="　--help　このヘルプを表示\n"
-        return m
-    
     for channel in channels:
         m+="%s: %d \n" % ( channel.name, len(channel.voice_members) )
     
     return m
 
-def roll(channelIDs, opts=[], members=[]):
+def roll(channelIDs=[], opts=[], members=[]):
     m=""
     
     """ initialize """
@@ -156,10 +156,12 @@ def parseMessage(content):
         if arg.startswith("-"): opts.append(arg[1:])
         elif arg!=""          : targets.append(arg)
     
+    print("==============")
     print("cmd:      %s" % cmd)
     print("targets:  %s" % targets)
     print("options:  %s" % opts)
     print("stdin:    %s" % stdin)
+    print("--------------")
     
     """ check command """
     if   cmd=="help" or cmd=="list":
@@ -174,7 +176,6 @@ def parseMessage(content):
     else:
         m=""
     
-    print("--------------")
     return m
 
 """ 開始処理 """
