@@ -13,8 +13,9 @@ def readCommandList():
         
     return m
 
-""" wc members in specified voice channel """
+""" count members in specified voice channel """
 def wc(channelIDs, opts=[], stdin=[]):
+    m=""
     
     if not channelIDs or "-help" in opts:
         m ="使用法: wc <channel ID>\n"
@@ -28,14 +29,13 @@ def wc(channelIDs, opts=[], stdin=[]):
         channel=bot.get_channel(channelID)
         
         if channel==None:
-            return "Error: '%s' doesn't exist\n" % channelID
+            m+="Warning: '%s' doesn't exist\n" % channelID
         
         elif str(channel.type)=="text":
-            return "Error: '%s' is text channel\n" % channel.name
+            m+="Warning: '%s' is text channel\n" % channel.name
         
         channels.append(channel)
     
-    m=""
     for channel in channels:
         m+="%s: %d \n" % ( channel.name, len(channel.voice_members) )
     
@@ -72,10 +72,10 @@ def roll(channelIDs, opts=[], members=[]):
             """ get channel info """
             channel=bot.get_channel(channelID)
             if channel==None:
-                return "Error: '%s' doesn't exist\n" % channelID
+                m+="Warning: '%s' doesn't exist\n" % channelID
             
             elif str(channel.type)=="text":
-                return "Error: '%s' is text channel\n" % channel.name
+                m+="Warning: '%s' is text channel\n" % channel.name
             
             if not channel.voice_members:
                 m+="Warning: no one is in '%s'\n" % channel.name
