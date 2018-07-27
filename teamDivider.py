@@ -14,7 +14,7 @@ def readCommandList():
     return m
 
 """ wc members in specified voice channel """
-def wcMembers(targets, opts=[]):
+def wc(targets, opts=[]):
     
     if not targets or "-help" in opts:
         m ="使用法: wc <channel ID>\n"
@@ -41,7 +41,7 @@ def wcMembers(targets, opts=[]):
     
     return m
 
-def startDivide(targets, opts=[]):
+def roll(targets, opts=[]):
     
     if not targets or "-help" in opts:
         m ="使用法: roll <channel ID> [options]\n"
@@ -149,10 +149,10 @@ def parseMessage(content):
         return readCommandList()
         
     elif argv[0]=="roll":
-        return startDivide(targets, opts)
+        return roll(targets, opts)
         
     elif argv[0]=="wc":
-        return wcMembers(targets, opts)
+        return wc(targets, opts)
         
     return ""
 
