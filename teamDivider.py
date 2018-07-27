@@ -34,7 +34,8 @@ def wc(channelIDs, opts=[], stdin=[]):
         elif str(channel.type)=="text":
             m+="Warning: '%s' is text channel\n" % channel.name
         
-        channels.append(channel)
+        else:
+            channels.append(channel)
     
     for channel in channels:
         m+="%s: %d \n" % ( channel.name, len(channel.voice_members) )
@@ -77,7 +78,7 @@ def roll(channelIDs, opts=[], members=[]):
             elif str(channel.type)=="text":
                 m+="Warning: '%s' is text channel\n" % channel.name
             
-            if not channel.voice_members:
+            elif not channel.voice_members:
                 m+="Warning: no one is in '%s'\n" % channel.name
             
             else:
