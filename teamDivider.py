@@ -7,8 +7,11 @@ bot = discord.Client()
 """ count members in specified voice channel """
 def countMembers(targets, opts=[]):
     
-    if not targets:
-        return "使用法: count <channel ID>\n"
+    if not targets or "-help" in opts:
+        m ="使用法: count <channel ID>\n"
+        m+="\n"
+        m+="　--help　このヘルプを表示\n"
+        return m
     
     channels=[]
     for channelID in targets:
@@ -31,11 +34,13 @@ def countMembers(targets, opts=[]):
 
 def startDivide(targets, opts=[]):
     
-    if not targets:
+    if not targets or "-help" in opts:
         m ="使用法: roll <channel ID> [options]\n"
         m+="\n"
-        m+="  -n    チーム数を指定\n"
-        m+="  -u    1チームの最大人数を指定\n"
+        m+="　　　-n　チーム数を指定\n"
+        m+="　　　-u　1チームの最大人数を指定\n"
+        m+="　　　　　デフォルト: -u2\n"
+        m+="　--help　このヘルプを表示\n"
         return m
     
     """ initialize """
@@ -75,9 +80,9 @@ def startDivide(targets, opts=[]):
             elif rule[0]=="n":
                 teamNum=rule[1]
                 
-            print(channel.name)
-            print("%d guys"       % memberNum)
-            print("%d teams"      % teamNum)
+            print("  %s"       % channel.name)
+            print("  %d guys"  % memberNum)
+            print("  %d teams" % teamNum)
             
             random.seed()
             randomList=random.sample(channel.voice_members, memberNum)
@@ -98,7 +103,10 @@ def startDivide(targets, opts=[]):
 
 
 def testCommands():
+    print( parseMessage("help") )
+    print( parseMessage("list") )
     print( parseMessage("roll") )
+    print( parseMessage("roll --help") )
     print( parseMessage("roll 47166010791952384") )
     print( parseMessage("roll 471660107919523843") )
     print( parseMessage("roll 471660107919523845 -n") )
@@ -109,6 +117,7 @@ def testCommands():
     print( parseMessage("roll 471660107919523845 -n4") )
     print( parseMessage("roll 471660107919523845 -u4") )
     print( parseMessage("count") )
+    print( parseMessage("count --help") )
     print( parseMessage("count 47166010791952384") )
     print( parseMessage("count 471660107919523843") )
     print( parseMessage("count 471660107919523845") )
@@ -127,7 +136,12 @@ def parseMessage(content):
         else:                   targets.append(arg)
     
     """ check command """
-    if argv[0]=="roll":
+    if   argv[0]=="help" or argv[0]=="list":
+        m ="コマンドリスト\n"
+        m+="　roll　　　チーム分け\n"
+        m+="　count 　　チャンネル内のメンバーを数える\n"
+        return m
+    elif argv[0]=="roll":
         return startDivide(targets, opts)
         
     elif argv[0]=="count":
