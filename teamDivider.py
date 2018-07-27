@@ -3,9 +3,12 @@ import random
 import sys
 
 bot = discord.Client()
+commandListFile="commandList.txt"
 
-def readCommandList(target=[], opts=[], members=[]):
-    file=open('commandList.txt', 'r')
+
+""" read file """
+def readFile(fileName, opts=[], members=[]):
+    file=open(fileName, 'r')
     m=""
     
     for line in file.readlines():
@@ -165,7 +168,7 @@ def parseMessage(content):
     
     """ check command """
     if   cmd=="help" or cmd=="list":
-        m=readCommandList()
+        m=readFile(commandListFile)
         
     elif cmd=="roll":
         m=roll(targets, opts, stdin)
