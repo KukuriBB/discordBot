@@ -5,15 +5,15 @@ import sys
 bot = discord.Client()
 commandListFile="commandList.txt"
 
-
 """ read file """
-def readFile(fileName, opts=[], members=[]):
-    file=open(fileName, 'r')
+def readCommandList(targets=[], opts=[], members=[]):
+    file=open(commandListFile, 'r')
     m=""
     
     for line in file.readlines():
         m+=line
-        
+    
+    file.close()
     return m
 
 """ count members in specified voice channel """
@@ -57,7 +57,7 @@ def roll(channelIDs=[], opts=[], members=[]):
             if len(opt)==1:
                 return "Error: '-%s' need number (ex: -%s3)\n" % (opt[0], opt[0])
             rule=[opt[0], int(opt[1:])]
-        else:
+        elif opt!="-help":
             return "Error: unknown option '-%s'" % opt[0]
     
     """ show help """
@@ -123,6 +123,7 @@ def roll(channelIDs=[], opts=[], members=[]):
 
 
 def testCommands():
+    print( parseMessage("hoge") )
     print( parseMessage("help") )
     print( parseMessage("list") )
     print( parseMessage("roll") )
@@ -166,20 +167,16 @@ def parseMessage(content):
     print("stdin:    %s" % stdin)
     print("--------------")
     
-    """ check command """
-    if   cmd=="help" or cmd=="list":
-        m=readFile(commandListFile)
-        
-    elif cmd=="roll":
-        m=roll(targets, opts, stdin)
-        
-    elif cmd=="wc":
-        m=wc(targets, opts)
-        
-    else:
-        m=""
+    funcTable={
+        "help": readCommandList,
+        "list": readCommandList,
+        "roll": roll,
+        "wc": wc}
     
-    return m
+    func=funcTable.get(cmd)
+    if func==None: return None
+    
+    return func(targets, opts, stdin)
 
 """ 開始処理 """
 @bot.event
@@ -200,10 +197,10 @@ async def on_message(message):
         m=parseMessage(message.content)
         
         """ if valid message has been returned """
-        if m!="":
+        if m!=None:
             """ send message """
             await bot.send_message(message.channel, m)
-        
+
 
 
 if __name__ == '__main__':
