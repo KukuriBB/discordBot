@@ -13,11 +13,11 @@ def readCommandList():
         
     return m
 
-""" count members in specified voice channel """
-def countMembers(targets, opts=[]):
+""" wc members in specified voice channel """
+def wc(targets, opts=[]):
     
     if not targets or "-help" in opts:
-        m ="使用法: count <channel ID>\n"
+        m ="使用法: wc <channel ID>\n"
         m+="\n"
         m+="　--help　このヘルプを表示\n"
         return m
@@ -41,7 +41,7 @@ def countMembers(targets, opts=[]):
     
     return m
 
-def startDivide(targets, opts=[]):
+def roll(targets, opts=[]):
     
     if not targets or "-help" in opts:
         m ="使用法: roll <channel ID> [options]\n"
@@ -125,12 +125,12 @@ def testCommands():
     print( parseMessage("roll -n3 471660107919523845") )
     print( parseMessage("roll 471660107919523845 -n4") )
     print( parseMessage("roll 471660107919523845 -u4") )
-    print( parseMessage("count") )
-    print( parseMessage("count --help") )
-    print( parseMessage("count 47166010791952384") )
-    print( parseMessage("count 471660107919523843") )
-    print( parseMessage("count 471660107919523845") )
-    print( parseMessage("count 471660107919523845 472022135179706368") )
+    print( parseMessage("wc") )
+    print( parseMessage("wc --help") )
+    print( parseMessage("wc 47166010791952384") )
+    print( parseMessage("wc 471660107919523843") )
+    print( parseMessage("wc 471660107919523845") )
+    print( parseMessage("wc 471660107919523845 472022135179706368") )
     
     
 """ テキストを解析して、返事を生成する """
@@ -149,10 +149,10 @@ def parseMessage(content):
         return readCommandList()
         
     elif argv[0]=="roll":
-        return startDivide(targets, opts)
+        return roll(targets, opts)
         
-    elif argv[0]=="count":
-        return countMembers(targets, opts)
+    elif argv[0]=="wc":
+        return wc(targets, opts)
         
     return ""
 
