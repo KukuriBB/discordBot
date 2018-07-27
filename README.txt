@@ -1,12 +1,4 @@
 導入手順
-	discordの開発者モードをオンにする
-		discordの設定->テーマ->開発者モード
-	
-	botの作成法
-		https://qiita.com/PinappleHunter/items/af4ccdbb04727437477f)
-		↑の、"Bot用のトークンを手に入れる"の通りに作業
-		Tokenは繰り返し使うので、どこかに保存しておくとよい
-	
 	cygwinをインストール
 		1.インストーラの実行
 			https://www.cygwin.com/
@@ -24,7 +16,16 @@
 			Develの右隣のDefaultをクリックして、Installにする
 		5.いじる必要のないところを無視
 			終わるまで「次へ」を押す
-		
+			※時間がかかるので、待ち時間でbotの作成まで進めてしまうとよい
+			
+	discordの開発者モードをオンにする
+		discordの設定->テーマ->開発者モード
+	
+	botの作成法
+		https://qiita.com/PinappleHunter/items/af4ccdbb04727437477f)
+		↑の、"Bot用のトークンを手に入れる"の通りに作業
+		Tokenは繰り返し使うので、どこかに保存しておくとよい
+	
 	プログラムの実行環境を整える
 		1.cygwinを起動
 		2.discord.pyのインストール
