@@ -23,7 +23,7 @@ def wc(channelIDs=[], opts=[], stdin=[]):
     if not channelIDs or "-help" in opts:
         m ="使用法: wc <channel ID>\n"
         m+="\n"
-        m+="　--help　このヘルプを表示\n"
+        m+="--help　このヘルプを表示\n"
         return m
     
     channels=[]
@@ -64,16 +64,16 @@ def roll(channelIDs=[], opts=[], members=[]):
     if (not members and not channelIDs) or "-help" in opts:
         m ="使用法: roll <channel ID> [options]\n"
         m+="\n"
-        m+="　-n　　　チーム数を指定\n"
-        m+="　-u　　　1チームの最大人数を指定\n"
-        m+="　　　　　デフォルト: -u2\n"
-        m+="　--help　このヘルプを表示\n"
+        m+="-n　　　チーム数を指定\n"
+        m+="-u　　　1チームの最大人数を指定\n"
+        m+="　　　　デフォルト: -u2\n"
+        m+="--help　このヘルプを表示\n"
         m+="\n"
-        m+="　2行目以降に列挙した名前でチーム分けをすることもできます\n"
-        m+="　ex) roll\n"
-        m+="　　太朗\n"
-        m+="　　花子\n"
-        m+="　　ジョン・スミス\n"
+        m+="2行目以降に列挙した名前でチーム分けをすることもできます\n"
+        m+="ex) roll\n"
+        m+="　太朗\n"
+        m+="　花子\n"
+        m+="　ジョン・スミス\n"
         return m
     
     #members=["a","b","c","d","e","f","g","h","i","j"]
