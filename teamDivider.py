@@ -1,5 +1,6 @@
 import discord
 import random
+import sys
 
 bot = discord.Client()
 
@@ -116,8 +117,8 @@ def parseMessage(content):
 @bot.event
 async def on_ready():
     print('Logged in as')
-    print(bot.user.name)
-    print(bot.user.id)
+    print("  name: %s" % bot.user.name)
+    print("  id:   %s" % bot.user.id)
     #for member in bot.get_all_members():
     #testCommands()
     print('===ready===')
@@ -134,5 +135,11 @@ async def on_message(message):
             await bot.send_message(message.channel, m)
         
 
-# デベロッパサイトで取得したトークンを入力
-bot.run("NDcxNjU5MjgzNTU4MTcwNjI0.DjoTgQ.xZF_8mR26TPoCa1RFVwtkYH8Bvg")
+
+if __name__ == '__main__':
+    if len(sys.argv)!=2:
+        sys.stderr.write("USAGE: python3 %s <token>\n" % sys.argv[0])
+        sys.stderr.write("ex)    python3 %s NDcxNjU5MjgzNTU4MTcwNjI0.DjoTgQ.xZF_8mR26TPoCa1RFVwtkYH8B\n" % sys.argv[0])
+        exit(1)
+    
+    bot.run(sys.argv[1])
