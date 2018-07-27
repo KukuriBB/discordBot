@@ -9,7 +9,7 @@ def countMembers(targets, opts=[]):
     print('===count===')
     
     if not targets:
-        return "USAGE: count <channel ID>"
+        return "USAGE: count <channel ID>\n"
     
     channels=[]
     for channelID in targets:
@@ -17,10 +17,10 @@ def countMembers(targets, opts=[]):
         channel=bot.get_channel(channelID)
         
         if channel==None:
-            return "Error: %s doesn't exist" % channelID
+            return "Error: %s doesn't exist\n" % channelID
         
         elif str(channel.type)=="text":
-            return "Error: '%s' is text channel" % channel.name
+            return "Error: '%s' is text channel\n" % channel.name
         
         channels.append(channel)
     
@@ -34,7 +34,7 @@ def startDivide(targets, opts=[]):
     print('===divide===')
     
     if not targets:
-        return "USAGE: roll <channel ID> [options]"
+        return "USAGE: roll <channel ID> [options]\n"
     
     """ initialize """
     div=2
@@ -45,7 +45,7 @@ def startDivide(targets, opts=[]):
         if opt.startswith("n"):
             """ check extra option """
             if len(opt)==1:
-                return "Error: -n need number (ex: -n4)"
+                return "Error: -n need number (ex: -n4)\n"
                 
             div=int(opt[1:])
     
@@ -54,10 +54,10 @@ def startDivide(targets, opts=[]):
         """ get channel info """
         channel=bot.get_channel(channelID)
         if channel==None:
-            return "Error: %s doesn't exist" % channelID
+            return "Error: %s doesn't exist\n" % channelID
         
         elif str(channel.type)=="text":
-            return "Error: '%s' is text channel" % channel.name
+            return "Error: '%s' is text channel\n" % channel.name
         
         channels.append(channel)
         
@@ -124,7 +124,7 @@ async def on_ready():
     print("  name: %s" % bot.user.name)
     print("  id:   %s" % bot.user.id)
     #for member in bot.get_all_members():
-    #testCommands()
+    testCommands()
     print('===ready===')
 
 """ メッセージを受け取ったときに起動 """
