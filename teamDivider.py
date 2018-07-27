@@ -14,7 +14,7 @@ def testCommands():
     print( parseMessage("roll 47166010791952384") )
     print( parseMessage("roll 471660107919523843") )
     print( parseMessage("roll 471660107919523845 -n") )
-    print( parseMessage("roll 471660107919523845 -u") )
+    print( parseMessage("roll 471660107919523845 --") )
     print( parseMessage("roll 471660107919523845") )
     print( parseMessage("roll 471660107919523845 -n4") )
     print( parseMessage("roll 471660107919523845 -u4") )
@@ -122,7 +122,8 @@ def roll(channelIDs=[], opts=[], members=[]):
                 m+="Warning: no one is in '%s'\n" % channel.name
             
             else:
-                members.extend(channel.voice_members)
+                for voice_member in channel.voice_members:
+                    members.append( voice_member.name )
     
     memberNum=len(members)
     if rule[0]=="u":
@@ -141,8 +142,7 @@ def roll(channelIDs=[], opts=[], members=[]):
         teams.append( [] )
     
     for i in range(len(members)):
-        #teams[int(i%teamNum)].append( members[i].name )
-        teams[int(i%teamNum)].append( str(members[i]) )
+        teams[int(i%teamNum)].append( members[i] )
         
     for i in range(teamNum):
         m+="#%d\n" % (i+1)
