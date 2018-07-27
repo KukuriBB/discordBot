@@ -1,0 +1,3 @@
+使用法: wc <channel ID>
+
+--help　このヘルプを表示

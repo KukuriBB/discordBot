@@ -16,21 +16,22 @@ def readFile(fileName):
     file.close()
     return m
     
-
-def readCommandList(message):
-    return readFile(commandListFile)
+def readHelp( cmd ):
+    return readFile( "doc/reference_%s.txt" % cmd )
     
+def help(message):
+    return readHelp( getCmd(message) )
+
+def list(message):
+    return readHelp( getCmd(message) )
+
 """ count members in specified voice channel """
 def wc(message):
-    print("=== wc ===")
     cmd, channelIDs, opts, stdin = parseMessage(message)
     m=""
     
     if not channelIDs or "-help" in opts:
-        m ="使用法: wc <channel ID>\n"
-        m+="\n"
-        m+="--help　このヘルプを表示\n"
-        return m
+        return readHelp(cmd)
     
     channels=[]
     for channelID in channelIDs:
@@ -52,7 +53,6 @@ def wc(message):
     return m
 
 def roll(message):
-    print("=== roll ===")
     cmd, channelIDs, opts, members = parseMessage(message)
     m=""
     
@@ -70,19 +70,7 @@ def roll(message):
     
     """ show help """
     if (not members and not channelIDs) or "-help" in opts:
-        m ="使用法: roll <channel ID> [options]\n"
-        m+="\n"
-        m+="-n　　　チーム数を指定\n"
-        m+="-u　　　1チームの最大人数を指定\n"
-        m+="　　　　デフォルト: -u2\n"
-        m+="--help　このヘルプを表示\n"
-        m+="\n"
-        m+="2行目以降に列挙した名前でチーム分けをすることもできます\n"
-        m+="ex) roll\n"
-        m+="　太朗\n"
-        m+="　花子\n"
-        m+="　ジョン・スミス\n"
-        return m
+        return readHelp(cmd)
     
     #members=["a","b","c","d","e","f","g","h","i","j"]
     if not members:
@@ -131,16 +119,12 @@ def roll(message):
 
 
 def ls(message):
-    print("=== ls ===")
     cmd, channelIDs, opts, stdin = parseMessage(message)
     m=""
     
     """ show help """
     if not channelIDs or "-help" in opts:
-        m ="使用法: ls <channel ID>\n"
-        m+="\n"
-        m+="--help　このヘルプを表示\n"
-        return m
+        return readHelp(cmd)
     
     for channelID in channelIDs:
         """ get channel info """
@@ -212,8 +196,8 @@ async def on_message(message):
         """ generate reply """
         cmd=getCmd(message)
         funcTable={
-            "help": readCommandList,
-            "list": readCommandList,
+            "help": help,
+            "list": list,
             "roll": roll,
             "wc": wc,
             "ls": ls
