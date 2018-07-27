@@ -71,6 +71,7 @@ def startDivide(targets, opts=[]):
             print("%d men a team" % div)
             
             random.seed()
+            """
             randomList=random.sample(channel.voice_members, len(channel.voice_members))
             for i in range(len(randomList)):
                 m+="#" + str(int( (i+div)/div )) + " " + randomList[i].name+"\n"
@@ -79,7 +80,7 @@ def startDivide(targets, opts=[]):
             randomList=["a","b","c","d","e","f","g","h","i","j"]
             for i in range(len(randomList)):
                 m+="#" + str(int( (i+div)/div )) + " " + str(randomList[i])+"\n"
-            """
+            #"""
     return m
 
 
