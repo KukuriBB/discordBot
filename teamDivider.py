@@ -14,16 +14,16 @@ def readCommandList():
     return m
 
 """ wc members in specified voice channel """
-def wc(targets, opts=[]):
+def wc(channelIDs, opts=[], stdin=[]):
     
-    if not targets or "-help" in opts:
+    if not channelIDs or "-help" in opts:
         m ="使用法: wc <channel ID>\n"
         m+="\n"
         m+="　--help　このヘルプを表示\n"
         return m
     
     channels=[]
-    for channelID in targets:
+    for channelID in channelIDs:
         """ set channel """
         channel=bot.get_channel(channelID)
         
@@ -41,9 +41,9 @@ def wc(targets, opts=[]):
     
     return m
 
-def roll(targets, opts=[]):
+def roll(channelIDs, opts=[], stdin=[]):
     
-    if not targets or "-help" in opts:
+    if not channelIDs or "-help" in opts:
         m ="使用法: roll <channel ID> [options]\n"
         m+="\n"
         m+="　　　-n　チーム数を指定\n"
@@ -65,7 +65,7 @@ def roll(targets, opts=[]):
             return "Error: unknown option '-%s'" % opt[0]
     
     channels=[]
-    for channelID in targets:
+    for channelID in channelIDs:
         """ get channel info """
         channel=bot.get_channel(channelID)
         if channel==None:
@@ -112,6 +112,7 @@ def roll(targets, opts=[]):
 
 
 def testCommands():
+    print( parseMessage("cmd file1 file2 -n2 -u4\nhoge\nfuga\npya") )
     print( parseMessage("help") )
     print( parseMessage("list") )
     print( parseMessage("roll") )
@@ -135,23 +136,32 @@ def testCommands():
     
 """ テキストを解析して、返事を生成する """
 def parseMessage(content):
-    print("$ %s" % content)
+    content=content.split("\n")
     
+    argv   =content[0].split(" ")
+    stdin  =content[1:]
+    
+    cmd=argv[0]
     targets=[]
     opts   =[]
-    argv  =content.split(" ")
     for arg in argv[1:]:
         if arg.startswith("-"): opts.append(arg[1:])
         else:                   targets.append(arg)
     
+    print("cmd:      %s" % cmd)
+    print("targets:  %s" % targets)
+    print("options:  %s" % opts)
+    print("stdin:    %s" % stdin)
+    
+    
     """ check command """
-    if   argv[0]=="help" or argv[0]=="list":
+    if   cmd=="help" or cmd=="list":
         return readCommandList()
         
-    elif argv[0]=="roll":
-        return roll(targets, opts)
+    elif cmd=="roll":
+        return roll(targets, opts, stdin)
         
-    elif argv[0]=="wc":
+    elif cmd=="wc":
         return wc(targets, opts)
         
     return ""
@@ -163,7 +173,7 @@ async def on_ready():
     print("  name: %s" % bot.user.name)
     print("  id:   %s" % bot.user.id)
     #for member in bot.get_all_members():
-    #testCommands()
+    testCommands()
     print('===ready===')
 
 """ メッセージを受け取ったときに起動 """
