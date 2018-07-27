@@ -1,17 +1,19 @@
 import discord
 import random
+import sys
 
 bot = discord.Client()
 
-def countMembers(targets, opts=[]):
+""" count members in specified voice channel """
+def countMembers(channels, opts=[]):
     print('===count===')
     
-    if not targets:
+    if not channels:
         return "USAGE: count <channel ID>"
     
     channels=[]
-    for channelID in targets:
-        # set channel
+    for channelID in channels:
+        """ set channel """
         channel=bot.get_channel(channelID)
         
         if channel==None:
@@ -28,33 +30,33 @@ def countMembers(targets, opts=[]):
     
     return m
 
-def startDivide(targets, opts=[]):
+def startDivide(channels, opts=[]):
     print('===divide===')
     
-    if not targets:
+    if not channels:
         return "USAGE: roll <channel ID> [options]"
     
-    # initialize
+    """ initialize """
     div=2
     
-    # read options
+    """ read options """
     for opt in opts:
-        # divitions option
+        """ divitions option """
         if opt.startswith("n"):
-            # check extra option
+            """ check extra option """
             if len(opt)==1:
                 return "Error: -n need number (ex: -n4)"
                 
             div=int(opt[1:])
     
     channels=[]
-    for channelID in targets:
-        # get channel info
+    for channelID in channels:
+        """ get channel info """
         channel=bot.get_channel(channelID)
         if channel==None:
             return "Error: %s doesn't exist" % channelID
         
-        # check channel type
+        """ check channel type """
         elif str(channel.type)=="text":
             return "Error: '%s' is text channel" % channel.name
         
@@ -94,7 +96,7 @@ def testCommands():
     print( parseMessage("count 471660107919523845 472022135179706368") )
     
     
-# テキストを解析して、適切なコマンドに引数を渡す
+""" テキストを解析して、返事を生成する """
 def parseMessage(content):
     targets=[]
     opts   =[]
@@ -103,7 +105,7 @@ def parseMessage(content):
         if arg.startswith("-"): opts.append(arg[1:])
         else:                   targets.append(arg)
     
-    # check command
+    """ check command """
     if argv[0]=="roll":
         return startDivide(targets, opts)
         
@@ -112,27 +114,37 @@ def parseMessage(content):
         
     return ""
 
-# 開始処理
+""" 開始処理 """
 @bot.event
 async def on_ready():
     print('Logged in as')
-    print(bot.user.name)
-    print(bot.user.id)
+    print("  name: %s" % bot.user.name)
+    print("  id:   %s" % bot.user.id)
     #for member in bot.get_all_members():
     #testCommands()
     print('===ready===')
 
-# メッセージを受け取ったときに起動
+""" メッセージを受け取ったときに起動 """
 @bot.event
 async def on_message(message):
-    # ignore itself
+    """ ignore itself """
     if bot.user != message.author:
+        """ generate reply """
         m=parseMessage(message.content)
         
-        # if valid message has been returned
+        """ if valid message has been returned """
         if m!="":
+            """ send message """
             await bot.send_message(message.channel, m)
         
 
-# デベロッパサイトで取得したトークンを入力
-bot.run("NDcxNjU5MjgzNTU4MTcwNjI0.DjoTgQ.xZF_8mR26TPoCa1RFVwtkYH8Bvg")
+
+if __name__ == '__main__':
+    """ token must be specified as argv[1] """
+    if len(sys.argv)!=2:
+        sys.stderr.write("USAGE: python3 %s <token>\n" % sys.argv[0])
+        sys.stderr.write("ex)    python3 %s NDcxNjU5MjgzNTU4MTcwNjI0.DjoTgQ.xZF_8mR26TPoCa1RFVwtkYH8B\n" % sys.argv[0])
+        exit(1)
+    
+    """ run using specified token """
+    bot.run(sys.argv[1])
