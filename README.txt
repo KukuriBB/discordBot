@@ -50,7 +50,7 @@
         
         画面に
             Logged in as
-              name: teamDivider
+              name: <bot name>
         と表示され、discodeの鯖でteamDividerがオンラインになっていれば成功
     5.チャンネルのIDをコピー
         参加者の待機しているボイスチャンネルを右クリックし、
