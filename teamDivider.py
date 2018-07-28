@@ -28,12 +28,12 @@ def list(message):
 """ count members in specified voice channel """
 def wc(message):
     cmd, channelIDs, opts, stdin = parseMessage(message)
-    m=""
     
     if not channelIDs or "-help" in opts:
         return readHelp(cmd)
     
     channels=[]
+    m=""
     for channelID in channelIDs:
         """ set channel """
         channel=bot.get_channel(channelID)
@@ -54,7 +54,10 @@ def wc(message):
 
 def roll(message):
     cmd, channelIDs, opts, members = parseMessage(message)
-    m=""
+    
+    """ show help """
+    if (not members and not channelIDs) or "-help" in opts:
+        return readHelp(cmd)
     
     """ initialize """
     rule=["u", 2]
@@ -65,13 +68,10 @@ def roll(message):
             if len(opt)==1:
                 return "Error: '-%s' need number (ex: -%s3)\n" % (opt[0], opt[0])
             rule=[opt[0], int(opt[1:])]
-        elif opt!="-help":
+        else:
             return "Error: unknown option '-%s'" % opt[0]
     
-    """ show help """
-    if (not members and not channelIDs) or "-help" in opts:
-        return readHelp(cmd)
-    
+    m=""
     #members=["a","b","c","d","e","f","g","h","i","j"]
     if not members:
         channels=[]
@@ -120,28 +120,63 @@ def roll(message):
 
 def ls(message):
     cmd, channelIDs, opts, stdin = parseMessage(message)
-    m=""
     
     """ show help """
-    if not channelIDs or "-help" in opts:
+    if "-help" in opts:
         return readHelp(cmd)
     
-    for channelID in channelIDs:
-        """ get channel info """
-        channel=bot.get_channel(channelID)
-        if channel==None:
-            m+="Warning: '%s' doesn't exist\n" % channelID
-        
-        elif str(channel.type)=="text":
-            m+="Warning: '%s' is text channel\n" % channel.name
-        
+    """ initialize """
+    l=0
+    d=0
+    
+    """ read options """
+    for opt in opts:
+        if opt.startswith("l"):
+            l=1
+        elif opt.startswith("d"):
+            d=1
         else:
-            if len(channelIDs)>1:
-                m+="%s:\n" % channel.name
-            for member in channel.voice_members:
-                m+="%s\n" % member.name
-            m+="\n"
+            return "Error: unknown option '-%s'" % opt[0]
+    
+    
+    m=""
+    targets=[]
+    if channelIDs:
+        for channelID in channelIDs:
+            """ get channel info """
+            channel=bot.get_channel(channelID)
+            if channel==None:
+                m+="Warning: '%s' doesn't exist\n" % channelID
+            else:
+                targets.append(channel)
+    else:
+        targets.append(message.server)
+        
+    for target in targets:
+        if isinstance( target, discord.server.Server ):
+            for channel in target.channels:
+                m+="%s\n" % channel.name
+        else:
+            if target.type==4:
+                m+="%s\n" % target.name
+                
+            elif str(target.type)=="text":
+                m+="%s\n" % target.name
             
+            elif str(target.type)=="voice":
+                if d==0:
+                    if len(targets)>1:
+                        m+="%s:\n" % target.name
+                        indent="  "
+                    else:
+                        indent=""
+                        
+                    for member in target.voice_members:
+                        m+="%s%s\n" % (indent, member.name)
+                    m+="\n"
+                else:
+                    m+="%s\n" % target.name
+                    
     if m.strip()=="":
         m="none"
     
@@ -177,6 +212,7 @@ def parseMessage(message):
     return cmd, targets, opts, stdin
     
     
+
 
 """ 開始処理 """
 @bot.event
