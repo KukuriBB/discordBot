@@ -117,6 +117,28 @@ def roll(message):
     
     return m
 
+def channelInfo(channel, l=False, d=False):
+    print( "%s\t%d\t%s\t%s" % (channel.type, channel.position, channel.id, channel.name) )
+    
+    m=""
+    
+    if channel.type==4:
+        pass
+    elif str(channel.type)=="text":
+        pass
+    elif str(channel.type)=="voice":
+        pass
+        
+
+    if str(channel.type)!="voice" or d:
+        m+="%s\n" % channel.name
+    else:
+        m+="\n%s:\n" % channel.name
+        for member in channel.voice_members:
+            m+="%s\n" % member.name
+        m+="\n"
+    
+    return m
 
 def ls(message):
     cmd, channelIDs, opts, stdin = parseMessage(message)
@@ -140,7 +162,7 @@ def ls(message):
     
     
     m=""
-    targets=[]
+    channels=[]
     if channelIDs:
         for channelID in channelIDs:
             """ get channel info """
@@ -148,35 +170,13 @@ def ls(message):
             if channel==None:
                 m+="Warning: '%s' doesn't exist\n" % channelID
             else:
-                targets.append(channel)
+                channels.append(channel)
     else:
-        targets.append(message.server)
+        channels=message.server.channels
+        d=True
         
-    for target in targets:
-        if isinstance( target, discord.server.Server ):
-            for channel in target.channels:
-                print( "%d\t%s\t%s\t%s", (channel.position, channel.id, channel.name, channel.type) )
-                m+="%s\n" % channel.name
-        else:
-            if target.type==4:
-                m+="%s\n" % target.name
-                
-            elif str(target.type)=="text":
-                m+="%s\n" % target.name
-            
-            elif str(target.type)=="voice":
-                if d:
-                    m+="%s\n" % target.name
-                else:
-                    if len(targets)>1:
-                        m+="%s:\n" % target.name
-                        indent="  "
-                    else:
-                        indent=""
-                        
-                    for member in target.voice_members:
-                        m+="%s%s\n" % (indent, member.name)
-                    m+="\n"
+    for channel in channels:
+        m+=channelInfo(channel, l=l, d=d)
                     
     if m.strip()=="":
         m="none"
