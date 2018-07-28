@@ -126,17 +126,17 @@ def ls(message):
         return readHelp(cmd)
     
     """ initialize """
-    l=0
-    d=0
+    l=False
+    d=False
     
     """ read options """
     for opt in opts:
         if opt.startswith("l"):
-            l=1
+            l=True
         elif opt.startswith("d"):
-            d=1
+            d=True
         else:
-            return "Error: unknown option '-%s'" % opt[0]
+            return "Error: unknown option '-%s'" % opt[False]
     
     
     m=""
@@ -155,6 +155,7 @@ def ls(message):
     for target in targets:
         if isinstance( target, discord.server.Server ):
             for channel in target.channels:
+                print( "%d\t%s\t%s\t%s", (channel.position, channel.id, channel.name, channel.type) )
                 m+="%s\n" % channel.name
         else:
             if target.type==4:
@@ -164,7 +165,9 @@ def ls(message):
                 m+="%s\n" % target.name
             
             elif str(target.type)=="voice":
-                if d==0:
+                if d:
+                    m+="%s\n" % target.name
+                else:
                     if len(targets)>1:
                         m+="%s:\n" % target.name
                         indent="  "
@@ -174,8 +177,6 @@ def ls(message):
                     for member in target.voice_members:
                         m+="%s%s\n" % (indent, member.name)
                     m+="\n"
-                else:
-                    m+="%s\n" % target.name
                     
     if m.strip()=="":
         m="none"
