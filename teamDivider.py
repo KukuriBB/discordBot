@@ -53,7 +53,7 @@ def wc(message):
         elif opt=="-set-default":
             setDefault=True
         else:
-            return "Error: unknown option '-%s'" % opt[0]
+            return "Error: unknown option '-%s'" % opt
     
     if not channelIDs:
         try:
@@ -106,7 +106,7 @@ def roll(message):
                 return "Error: '-%s' need number (ex: -%s3)\n" % (opt[0], opt[0])
             rule=[opt[0], int(opt[1:])]
         else:
-            return "Error: unknown option '-%s'" % opt[0]
+            return "Error: unknown option '-%s'" % opt
     
     if (not members and not channelIDs):
         try:
@@ -211,7 +211,7 @@ def ls(message):
         elif opt.startswith("d"):
             d=True
         else:
-            return "Error: unknown option '-%s'" % opt[False]
+            return "Error: unknown option '-%s'" % opt
     
     
     m=""
