@@ -46,6 +46,7 @@ def log(message):
 def wc(message):
     cmd, channelIDs, opts, stdin = parseContent(message.content)
     setDefault=False
+    m=""
     
     for opt in opts:
         if opt=="-help":
@@ -58,6 +59,7 @@ def wc(message):
     if not channelIDs:
         try:
             channelIDs.append( ini["wcDefaultChannel"] )
+            m+="_using default: '%s'_\n" % ini["wcDefaultChannel"]
         except:
             return "Error: no channel was specified"
     
@@ -70,7 +72,6 @@ def wc(message):
             return "set default channel '%s'" % channelIDs[0]
     
     channels=[]
-    m=""
     for channelID in channelIDs:
         """ set channel """
         channel=bot.get_channel(channelID)
@@ -94,6 +95,7 @@ def wc(message):
 def roll(message):
     cmd, channelIDs, opts, members = parseContent(message.content)
     setDefault=False
+    m=""
     
     """ initialize """
     rule=["u", 2]
@@ -113,6 +115,7 @@ def roll(message):
     if (not members and not channelIDs):
         try:
             channelIDs.append( ini["rollDefaultChannel"] )
+            m+="_using default: '%s'_\n" % ini["wcDefaultChannel"]
         except:
             return "Error: no channel was specified"
     
@@ -127,7 +130,6 @@ def roll(message):
             return "set default channel '%s'" % channelIDs[0]
     
     """ read options """
-    m=""
     if not members:
         channels=[]
         for channelID in channelIDs:
