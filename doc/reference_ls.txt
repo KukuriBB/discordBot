@@ -1,0 +1,3 @@
+使用法: ls <channel ID>
+
+--help　このヘルプを表示

@@ -5,39 +5,9 @@ import sys
 bot = discord.Client()
 commandListFile="commandList.txt"
 
-def testCommands():
-    print( parseMessage("hoge") )
-    print( parseMessage("help") )
-    print( parseMessage("list") )
-    print( parseMessage("roll") )
-    print( parseMessage("roll --help") )
-    print( parseMessage("roll 47166010791952384") )
-    print( parseMessage("roll 471660107919523843") )
-    print( parseMessage("roll 471660107919523845 -n") )
-    print( parseMessage("roll 471660107919523845 --") )
-    print( parseMessage("roll 471660107919523845") )
-    print( parseMessage("roll 471660107919523845 -n4") )
-    print( parseMessage("roll 471660107919523845 -u4") )
-    print( parseMessage("roll 471660107919523845 472022135179706368") )
-    print( parseMessage("roll\n太朗\n花子\n次郎\nジョン・スミス") )
-    print( parseMessage("roll 471660107919523845\nhoge\nfuga\npya\nfoo\nbar\nyo\nne\nmo\nto") )
-    print( parseMessage("wc") )
-    print( parseMessage("wc --help") )
-    print( parseMessage("wc 47166010791952384") )
-    print( parseMessage("wc 471660107919523843") )
-    print( parseMessage("wc 471660107919523845") )
-    print( parseMessage("wc 471660107919523845 472022135179706368") )
-    print( parseMessage("ls") )
-    print( parseMessage("ls --help") )
-    print( parseMessage("ls 47166010791952384") )
-    print( parseMessage("ls 471660107919523843") )
-    print( parseMessage("ls 471660107919523845") )
-    print( parseMessage("ls 471660107919523845 472022135179706368") )
-    
-    
 """ read file """
-def readCommandList(targets=[], opts=[], members=[]):
-    file=open(commandListFile, 'r')
+def readFile(fileName):
+    file=open(fileName, 'r')
     m=""
     
     for line in file.readlines():
@@ -45,18 +15,30 @@ def readCommandList(targets=[], opts=[], members=[]):
     
     file.close()
     return m
+    
+def readHelp( cmd ):
+    return readFile( "doc/reference_%s.txt" % cmd )
+    
+def help(message):
+    m =readHelp( getCmd(message.content) )
+    m+=readHelp( "list" )
+    return m
+
+def list(message):
+    return readHelp( getCmd(message.content) )
+
+def log(message):
+    return readFile( "doc/updateLog.txt" )
 
 """ count members in specified voice channel """
-def wc(channelIDs=[], opts=[], stdin=[]):
-    m=""
+def wc(message):
+    cmd, channelIDs, opts, stdin = parseContent(message.content)
     
     if not channelIDs or "-help" in opts:
-        m ="使用法: wc <channel ID>\n"
-        m+="\n"
-        m+="--help　このヘルプを表示\n"
-        return m
+        return readHelp(cmd)
     
     channels=[]
+    m=""
     for channelID in channelIDs:
         """ set channel """
         channel=bot.get_channel(channelID)
@@ -75,8 +57,12 @@ def wc(channelIDs=[], opts=[], stdin=[]):
     
     return m
 
-def roll(channelIDs=[], opts=[], members=[]):
-    m=""
+def roll(message):
+    cmd, channelIDs, opts, members = parseContent(message.content)
+    
+    """ show help """
+    if (not members and not channelIDs) or "-help" in opts:
+        return readHelp(cmd)
     
     """ initialize """
     rule=["u", 2]
@@ -87,25 +73,10 @@ def roll(channelIDs=[], opts=[], members=[]):
             if len(opt)==1:
                 return "Error: '-%s' need number (ex: -%s3)\n" % (opt[0], opt[0])
             rule=[opt[0], int(opt[1:])]
-        elif opt!="-help":
+        else:
             return "Error: unknown option '-%s'" % opt[0]
     
-    """ show help """
-    if (not members and not channelIDs) or "-help" in opts:
-        m ="使用法: roll <channel ID> [options]\n"
-        m+="\n"
-        m+="-n　　　チーム数を指定\n"
-        m+="-u　　　1チームの最大人数を指定\n"
-        m+="　　　　デフォルト: -u2\n"
-        m+="--help　このヘルプを表示\n"
-        m+="\n"
-        m+="2行目以降に列挙した名前でチーム分けをすることもできます\n"
-        m+="ex) roll\n"
-        m+="　太朗\n"
-        m+="　花子\n"
-        m+="　ジョン・スミス\n"
-        return m
-    
+    m=""
     #members=["a","b","c","d","e","f","g","h","i","j"]
     if not members:
         channels=[]
@@ -151,42 +122,97 @@ def roll(channelIDs=[], opts=[], members=[]):
     
     return m
 
-
-def ls(channelIDs=[], opts=[], stdin=[]):
-    m=""
-    
-    """ show help """
-    if not channelIDs or "-help" in opts:
-        m ="使用法: ls <channel ID>\n"
-        m+="\n"
-        m+="--help　このヘルプを表示\n"
-        return m
-    
-    for channelID in channelIDs:
-        """ get channel info """
-        channel=bot.get_channel(channelID)
-        if channel==None:
-            m+="Warning: '%s' doesn't exist\n" % channelID
+def ls(message):
+    def channelInfo(channel, l=False, d=False):
+        #print( "%s\t%d\t%s\t%s" % (channel.type, channel.position, channel.id, channel.name) )
         
+        m=""
+        
+        if channel.type==4:
+            pass
         elif str(channel.type)=="text":
-            m+="Warning: '%s' is text channel\n" % channel.name
-        
+            pass
+        elif str(channel.type)=="voice":
+            pass
+            
+
+        if str(channel.type)!="voice" or d:
+            m+="%s\n" % channel.name
         else:
-            if len(channelIDs)>1:
-                m+="%s:\n" % channel.name
+            m+="\n%s:\n" % channel.name
             for member in channel.voice_members:
                 m+="%s\n" % member.name
             m+="\n"
+        
+        return m
+        
+    cmd, channelIDs, opts, stdin = parseContent(message.content)
+    
+    """ show help """
+    if "-help" in opts:
+        return readHelp(cmd)
+    
+    """ initialize """
+    l=False
+    d=False
+    
+    """ read options """
+    for opt in opts:
+        if opt.startswith("l"):
+            l=True
+        elif opt.startswith("d"):
+            d=True
+        else:
+            return "Error: unknown option '-%s'" % opt[False]
+    
+    
+    m=""
+    channels=[]
+    if channelIDs:
+        for channelID in channelIDs:
+            """ get channel info """
+            channel=bot.get_channel(channelID)
+            if channel==None:
+                m+="Warning: '%s' doesn't exist\n" % channelID
+            else:
+                channels.append(channel)
+    else:
+        channels=message.server.channels
+        d=True
+        
+    for channel in channels:
+        m+=channelInfo(channel, l=l, d=d)
+                    
+    if m.strip()=="":
+        m="none"
+    
     
     return m
 
+def test(message):
+    file=open("testCmd.txt", 'r')
+    
+    for line in file.readlines():
+        if not line.startswith("#"):
+            message.content=line.strip().replace("\\n", "\n")
+            
+            print("==============")
+            print("%s" % message.content)
+            print("--------------")
+            print(parseMessage(message))
+    
+    file.close()
+    return None
+
 
 """ テキストを解析して、返事を生成する """
-def parseMessage(content):
-    content=content.split("\n")
+def getCmd(content):
+    return content.strip().split("\n")[0].split(" ")[0]    
     
-    argv   =content[0].strip().split(" ")
-    stdin  =content[1:]
+def parseContent(content):
+    text   =content.split("\n")
+    argv   =text[0].strip().split(" ")
+    stdin  =text[1:]
     
     cmd=argv[0]
     targets=[]
@@ -194,25 +220,41 @@ def parseMessage(content):
     for arg in argv[1:]:
         if arg.startswith("-"): opts.append(arg[1:])
         elif arg!=""          : targets.append(arg)
+        
     
-    print("==============")
-    print("cmd:      %s" % cmd)
-    print("targets:  %s" % targets)
-    print("options:  %s" % opts)
-    print("stdin:    %s" % stdin)
-    print("--------------")
+    # print("command:  %s" % cmd)
+    # print("targets:  %s" % targets)
+    # print("options:  %s" % opts)
+    # print("stdin:    %s" % stdin)
+        
+    return cmd, targets, opts, stdin
     
+    
+
+def parseMessage(message):
+    """ ignore itself """
+    if bot.user == message.author:
+        return None
+        
+    """ generate reply """
+    cmd=getCmd(message.content)
     funcTable={
-        "help": readCommandList,
-        "list": readCommandList,
+        "__cmdTest": test,
+        "help": help,
+        "list": list,
         "roll": roll,
+        "log": log,
         "wc": wc,
-        "ls": ls}
+        "ls": ls
+    }
     
     func=funcTable.get(cmd)
-    if func==None: return None
+    if func==None:
+        return None
+        
+    return func(message)
     
-    return func(targets, opts, stdin)
+
 
 """ 開始処理 """
 @bot.event
@@ -227,15 +269,12 @@ async def on_ready():
 """ メッセージを受け取ったときに起動 """
 @bot.event
 async def on_message(message):
-    """ ignore itself """
-    if bot.user != message.author:
-        """ generate reply """
-        m=parseMessage(message.content)
-        
-        """ if valid message has been returned """
-        if m!=None:
-            """ send message """
-            await bot.send_message(message.channel, m)
+    m=parseMessage(message)
+    
+    """ if valid message has been returned """
+    if m!=None:
+        """ send message """
+        await bot.send_message(message.channel, m)
 
 
 
