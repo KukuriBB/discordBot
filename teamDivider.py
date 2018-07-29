@@ -20,10 +20,15 @@ def readHelp( cmd ):
     return readFile( "doc/reference_%s.txt" % cmd )
     
 def help(message):
-    return readHelp( getCmd(message) )
+    m =readHelp( getCmd(message) )
+    m+=readHelp( "list" )
+    return m
 
 def list(message):
     return readHelp( getCmd(message) )
+
+def log(message):
+    return readFile( "doc/updateLog.txt" )
 
 """ count members in specified voice channel """
 def wc(message):
@@ -236,6 +241,7 @@ async def on_message(message):
             "help": help,
             "list": list,
             "roll": roll,
+            "log": log,
             "wc": wc,
             "ls": ls
         }
