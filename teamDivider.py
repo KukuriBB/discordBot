@@ -20,19 +20,19 @@ def readHelp( cmd ):
     return readFile( "doc/reference_%s.txt" % cmd )
     
 def help(message):
-    m =readHelp( getCmd(content) )
+    m =readHelp( getCmd(message.content) )
     m+=readHelp( "list" )
     return m
 
 def list(message):
-    return readHelp( getCmd(content) )
+    return readHelp( getCmd(message.content) )
 
 def log(message):
     return readFile( "doc/updateLog.txt" )
 
 """ count members in specified voice channel """
 def wc(message):
-    cmd, channelIDs, opts, stdin = parseContent(content)
+    cmd, channelIDs, opts, stdin = parseContent(message.content)
     
     if not channelIDs or "-help" in opts:
         return readHelp(cmd)
@@ -58,7 +58,7 @@ def wc(message):
     return m
 
 def roll(message):
-    cmd, channelIDs, opts, members = parseContent(content)
+    cmd, channelIDs, opts, members = parseContent(message.content)
     
     """ show help """
     if (not members and not channelIDs) or "-help" in opts:
@@ -146,7 +146,7 @@ def channelInfo(channel, l=False, d=False):
     return m
 
 def ls(message):
-    cmd, channelIDs, opts, stdin = parseContent(content)
+    cmd, channelIDs, opts, stdin = parseContent(message.content)
     
     """ show help """
     if "-help" in opts:
@@ -191,23 +191,28 @@ def ls(message):
 
 def test(message):
     file=open("testCmd.txt", 'r')
-    m=""
     
     for line in file.readlines():
-        mssage.content=line
-        m+=on_message(message)
+        if not line.startswith("#"):
+            message.content=line.strip().replace("\\n", "\n")
+            
+            print("==============")
+            print("%s" % message.content)
+            print("--------------")
+            print(parseMessage(message))
     
     file.close()
-    return m
+    return None
 
 
 """ テキストを解析して、返事を生成する """
 def getCmd(content):
-    return content.strip().split(" ")[0]    
+    return content.strip().split("\n")[0].split(" ")[0]    
     
 def parseContent(content):
     text   =content.split("\n")
     argv   =text[0].strip().split(" ")
+    stdin  =text[1:]
     
     cmd=argv[0]
     targets=[]
@@ -216,17 +221,38 @@ def parseContent(content):
         if arg.startswith("-"): opts.append(arg[1:])
         elif arg!=""          : targets.append(arg)
         
-    stdin  =text[1:]
     
-    print("==============")
     print("command:  %s" % cmd)
     print("targets:  %s" % targets)
     print("options:  %s" % opts)
     print("stdin:    %s" % stdin)
-    print("--------------")
         
     return cmd, targets, opts, stdin
     
+    
+
+def parseMessage(message):
+    """ ignore itself """
+    if bot.user == message.author:
+        return None
+        
+    """ generate reply """
+    cmd=getCmd(message.content)
+    funcTable={
+        "__cmdTest": test,
+        "help": help,
+        "list": list,
+        "roll": roll,
+        "log": log,
+        "wc": wc,
+        "ls": ls
+    }
+    
+    func=funcTable.get(cmd)
+    if func==None:
+        return None
+        
+    return func(message)
     
 
 
@@ -240,34 +266,15 @@ async def on_ready():
     #testCommands()
     print('===ready===')
 
-def 
-
 """ メッセージを受け取ったときに起動 """
 @bot.event
 async def on_message(message):
-    """ ignore itself """
-    if bot.user != message.author:
-        """ generate reply """
-        cmd=getCmd(content)
-        funcTable={
-            "__cmdTest_": test,
-            "help": help,
-            "list": list,
-            "roll": roll,
-            "log": log,
-            "wc": wc,
-            "ls": ls
-        }
-        
-        m=None
-        func=funcTable.get(cmd)
-        if func!=None:
-            m=func(message)
-        
-        """ if valid message has been returned """
-        if m!=None:
-            """ send message """
-            await bot.send_message(message.channel, m)
+    m=parseMessage(message)
+    
+    """ if valid message has been returned """
+    if m!=None:
+        """ send message """
+        await bot.send_message(message.channel, m)
 
 
 
