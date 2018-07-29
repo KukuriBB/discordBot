@@ -122,30 +122,30 @@ def roll(message):
     
     return m
 
-def channelInfo(channel, l=False, d=False):
-    print( "%s\t%d\t%s\t%s" % (channel.type, channel.position, channel.id, channel.name) )
-    
-    m=""
-    
-    if channel.type==4:
-        pass
-    elif str(channel.type)=="text":
-        pass
-    elif str(channel.type)=="voice":
-        pass
-        
-
-    if str(channel.type)!="voice" or d:
-        m+="%s\n" % channel.name
-    else:
-        m+="\n%s:\n" % channel.name
-        for member in channel.voice_members:
-            m+="%s\n" % member.name
-        m+="\n"
-    
-    return m
-
 def ls(message):
+    def channelInfo(channel, l=False, d=False):
+        #print( "%s\t%d\t%s\t%s" % (channel.type, channel.position, channel.id, channel.name) )
+        
+        m=""
+        
+        if channel.type==4:
+            pass
+        elif str(channel.type)=="text":
+            pass
+        elif str(channel.type)=="voice":
+            pass
+            
+
+        if str(channel.type)!="voice" or d:
+            m+="%s\n" % channel.name
+        else:
+            m+="\n%s:\n" % channel.name
+            for member in channel.voice_members:
+                m+="%s\n" % member.name
+            m+="\n"
+        
+        return m
+        
     cmd, channelIDs, opts, stdin = parseContent(message.content)
     
     """ show help """
@@ -222,10 +222,10 @@ def parseContent(content):
         elif arg!=""          : targets.append(arg)
         
     
-    print("command:  %s" % cmd)
-    print("targets:  %s" % targets)
-    print("options:  %s" % opts)
-    print("stdin:    %s" % stdin)
+    # print("command:  %s" % cmd)
+    # print("targets:  %s" % targets)
+    # print("options:  %s" % opts)
+    # print("stdin:    %s" % stdin)
         
     return cmd, targets, opts, stdin
     
