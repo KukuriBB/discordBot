@@ -101,6 +101,10 @@ def roll(message):
             return readHelp(cmd)
         elif opt=="-set-default":
             setDefault=True
+        elif opt.startswith("n") or opt.startswith("u"):
+            if len(opt)==1:
+                return "Error: '-%s' need number (ex: -%s3)\n" % (opt[0], opt[0])
+            rule=[opt[0], int(opt[1:])]
         else:
             return "Error: unknown option '-%s'" % opt[0]
     
