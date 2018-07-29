@@ -91,17 +91,37 @@ def wc(message):
 
 def roll(message):
     cmd, channelIDs, opts, members = parseContent(message.content)
-    
-    """ show help """
-    if (not members and not channelIDs) or "-help" in opts:
-        return readHelp(cmd)
+    setDefault=False
     
     """ initialize """
     rule=["u", 2]
     
+    for opt in opts:
+        if opt=="-help":
+            return readHelp(cmd)
+        elif opt=="-set-default":
+            setDefault=True
+        else:
+            return "Error: unknown option '-%s'" % opt[0]
+    
+    if (not members and not channelIDs):
+        try:
+            channelIDs.append( ini["rollDefaultChannel"] )
+        except:
+            return "Error: no channel was specified"
+    
+    if setDefault:
+        if len(channelIDs)==0:
+            return "Error: no channel was specified"
+        elif len(channelIDs)>1:
+            return "Error: default channel must be unique"
+        else:
+            ini["rollDefaultChannel"] = channelIDs[0]
+            saveIni()
+            return "set default channel '%s'" % channelIDs[0]
+    
     """ read options """
     m=""
-    #members=["a","b","c","d","e","f","g","h","i","j"]
     if not members:
         channels=[]
         for channelID in channelIDs:
