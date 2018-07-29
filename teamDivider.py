@@ -46,6 +46,7 @@ def log(message):
 def wc(message):
     cmd, channelIDs, opts, stdin = parseContent(message.content)
     setDefault=False
+    m=""
     
     for opt in opts:
         if opt=="-help":
@@ -53,11 +54,12 @@ def wc(message):
         elif opt=="-set-default":
             setDefault=True
         else:
-            return "Error: unknown option '-%s'" % opt[0]
+            return "Error: unknown option '-%s'" % opt
     
     if not channelIDs:
         try:
             channelIDs.append( ini["wcDefaultChannel"] )
+            m+="_using default: '%s'_\n" % ini["wcDefaultChannel"]
         except:
             return "Error: no channel was specified"
     
@@ -70,7 +72,6 @@ def wc(message):
             return "set default channel '%s'" % channelIDs[0]
     
     channels=[]
-    m=""
     for channelID in channelIDs:
         """ set channel """
         channel=bot.get_channel(channelID)
@@ -85,13 +86,16 @@ def wc(message):
             channels.append(channel)
     
     for channel in channels:
-        m+="%s: %d \n" % ( channel.name, len(channel.voice_members) )
+        if len(channelIDs)>1:
+            m+="%s: " % channel.name
+        m+="%d\n" % len(channel.voice_members)
     
     return m
 
 def roll(message):
     cmd, channelIDs, opts, members = parseContent(message.content)
     setDefault=False
+    m=""
     
     """ initialize """
     rule=["u", 2]
@@ -106,11 +110,12 @@ def roll(message):
                 return "Error: '-%s' need number (ex: -%s3)\n" % (opt[0], opt[0])
             rule=[opt[0], int(opt[1:])]
         else:
-            return "Error: unknown option '-%s'" % opt[0]
+            return "Error: unknown option '-%s'" % opt
     
     if (not members and not channelIDs):
         try:
             channelIDs.append( ini["rollDefaultChannel"] )
+            m+="_using default: '%s'_\n" % ini["wcDefaultChannel"]
         except:
             return "Error: no channel was specified"
     
@@ -125,7 +130,6 @@ def roll(message):
             return "set default channel '%s'" % channelIDs[0]
     
     """ read options """
-    m=""
     if not members:
         channels=[]
         for channelID in channelIDs:
@@ -211,7 +215,7 @@ def ls(message):
         elif opt.startswith("d"):
             d=True
         else:
-            return "Error: unknown option '-%s'" % opt[False]
+            return "Error: unknown option '-%s'" % opt
     
     
     m=""
