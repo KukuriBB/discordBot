@@ -20,19 +20,19 @@ def readHelp( cmd ):
     return readFile( "doc/reference_%s.txt" % cmd )
     
 def help(message):
-    m =readHelp( getCmd(message) )
+    m =readHelp( getCmd(content) )
     m+=readHelp( "list" )
     return m
 
 def list(message):
-    return readHelp( getCmd(message) )
+    return readHelp( getCmd(content) )
 
 def log(message):
     return readFile( "doc/updateLog.txt" )
 
 """ count members in specified voice channel """
 def wc(message):
-    cmd, channelIDs, opts, stdin = parseMessage(message)
+    cmd, channelIDs, opts, stdin = parseContent(content)
     
     if not channelIDs or "-help" in opts:
         return readHelp(cmd)
@@ -58,7 +58,7 @@ def wc(message):
     return m
 
 def roll(message):
-    cmd, channelIDs, opts, members = parseMessage(message)
+    cmd, channelIDs, opts, members = parseContent(content)
     
     """ show help """
     if (not members and not channelIDs) or "-help" in opts:
@@ -146,7 +146,7 @@ def channelInfo(channel, l=False, d=False):
     return m
 
 def ls(message):
-    cmd, channelIDs, opts, stdin = parseMessage(message)
+    cmd, channelIDs, opts, stdin = parseContent(content)
     
     """ show help """
     if "-help" in opts:
@@ -189,14 +189,24 @@ def ls(message):
     
     return m
 
+def test(message):
+    file=open("testCmd.txt", 'r')
+    m=""
+    
+    for line in file.readlines():
+        mssage.content=line
+        m+=on_message(message)
+    
+    file.close()
+    return m
 
 
 """ テキストを解析して、返事を生成する """
-def getCmd(message):
-    return message.content.strip().split(" ")[0]    
+def getCmd(content):
+    return content.strip().split(" ")[0]    
     
-def parseMessage(message):
-    text   =message.content.split("\n")
+def parseContent(content):
+    text   =content.split("\n")
     argv   =text[0].strip().split(" ")
     
     cmd=argv[0]
@@ -230,14 +240,17 @@ async def on_ready():
     #testCommands()
     print('===ready===')
 
+def 
+
 """ メッセージを受け取ったときに起動 """
 @bot.event
 async def on_message(message):
     """ ignore itself """
     if bot.user != message.author:
         """ generate reply """
-        cmd=getCmd(message)
+        cmd=getCmd(content)
         funcTable={
+            "__cmdTest_": test,
             "help": help,
             "list": list,
             "roll": roll,
