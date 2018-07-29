@@ -1,9 +1,21 @@
 import discord
 import random
 import sys
+import os
 
 bot = discord.Client()
-commandListFile="commandList.txt"
+iniFile="ini/defaultSettings.txt"
+ini = {}
+
+def saveIni():
+    if not os.path.isdir("ini"):
+        os.makedirs("ini")
+    
+    file=open(iniFile, 'w')
+    for key in ini.keys():
+        file.write("%s:%s\n" % (key, ini[key]) )
+    
+    return
 
 """ read file """
 def readFile(fileName):
@@ -33,9 +45,29 @@ def log(message):
 """ count members in specified voice channel """
 def wc(message):
     cmd, channelIDs, opts, stdin = parseContent(message.content)
+    setDefault=False
     
-    if not channelIDs or "-help" in opts:
-        return readHelp(cmd)
+    for opt in opts:
+        if opt=="-help":
+            return readHelp(cmd)
+        elif opt=="-set-default":
+            setDefault=True
+        else:
+            return "Error: unknown option '-%s'" % opt[0]
+    
+    if not channelIDs:
+        try:
+            channelIDs.append( ini["wcDefaultChannel"] )
+        except:
+            return "Error: no channel was specified"
+    
+    if setDefault:
+        if len(channelIDs)>1:
+            return "Error: default channel must be unique"
+        else:
+            ini["wcDefaultChannel"] = channelIDs[0]
+            saveIni()
+            return "set default channel '%s'" % channelIDs[0]
     
     channels=[]
     m=""
@@ -59,25 +91,41 @@ def wc(message):
 
 def roll(message):
     cmd, channelIDs, opts, members = parseContent(message.content)
-    
-    """ show help """
-    if (not members and not channelIDs) or "-help" in opts:
-        return readHelp(cmd)
+    setDefault=False
     
     """ initialize """
     rule=["u", 2]
     
-    """ read options """
     for opt in opts:
-        if opt.startswith("n") or opt.startswith("u"):
+        if opt=="-help":
+            return readHelp(cmd)
+        elif opt=="-set-default":
+            setDefault=True
+        elif opt.startswith("n") or opt.startswith("u"):
             if len(opt)==1:
                 return "Error: '-%s' need number (ex: -%s3)\n" % (opt[0], opt[0])
             rule=[opt[0], int(opt[1:])]
         else:
             return "Error: unknown option '-%s'" % opt[0]
     
+    if (not members and not channelIDs):
+        try:
+            channelIDs.append( ini["rollDefaultChannel"] )
+        except:
+            return "Error: no channel was specified"
+    
+    if setDefault:
+        if len(channelIDs)==0:
+            return "Error: no channel was specified"
+        elif len(channelIDs)>1:
+            return "Error: default channel must be unique"
+        else:
+            ini["rollDefaultChannel"] = channelIDs[0]
+            saveIni()
+            return "set default channel '%s'" % channelIDs[0]
+    
+    """ read options """
     m=""
-    #members=["a","b","c","d","e","f","g","h","i","j"]
     if not members:
         channels=[]
         for channelID in channelIDs:
@@ -262,8 +310,19 @@ async def on_ready():
     print('Logged in as')
     print("  name: %s" % bot.user.name)
     print("  id:   %s" % bot.user.id)
-    #for member in bot.get_all_members():
-    #testCommands()
+    
+    try:
+        file=open(iniFile , 'r')
+        for line in file.readlines():
+            arr=line.strip().split(":")
+            ini[arr[0]]=arr[1]
+        file.close()
+    except:
+        pass
+        
+    for key in ini.keys():
+        print("  %s: %s" % (key, ini[key]) )
+    
     print('===ready===')
 
 """ メッセージを受け取ったときに起動 """
