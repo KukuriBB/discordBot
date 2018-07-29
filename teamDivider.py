@@ -85,7 +85,9 @@ def wc(message):
             channels.append(channel)
     
     for channel in channels:
-        m+="%s: %d \n" % ( channel.name, len(channel.voice_members) )
+        if len(channelIDs)>1:
+            m+="%s: " % channel.name
+        m+="%d\n" % len(channel.voice_members)
     
     return m
 
