@@ -3,12 +3,15 @@ import random
 import sys
 import os
 import subprocess
+import numpy as np
 
 bot = discord.Client()
 iniFile="ini/defaultSettings.txt"
 logFile="doc/updateLog.txt"
 ini = {}
 injDmTerminal="bash"
+pastTeams=[]
+
 
 def saveIni():
     if not os.path.isdir("ini"):
@@ -43,15 +46,16 @@ def list(message):
     return readHelp( getCmd(message.content) )
 
 def log(message):
+    
     cmd, target, opts, stdin = parseContent(message.content)
     pastReference=False
     
-    num=1
+    num=0
     if target:
         try:
             num=int(target[0])
         except:
-            num=1
+            num=0
     
     for opt in opts:
         if opt=="-help":
@@ -64,9 +68,7 @@ def log(message):
     lines=readFile( logFile )
     m=""
     
-    if pastReference:
-        pass
-    elif num==0:
+    if num==0:
         m=lines
     else:
         count=0
@@ -178,6 +180,7 @@ def wc(message):
 def roll(message):
     cmd, channelIDs, opts, members = parseContent(message.content)
     setDefault=False
+    global pastTeams
     m=""
     
     """ initialize """
@@ -236,24 +239,38 @@ def roll(message):
         teamNum=int(memberNum/rule[1]) + (memberNum%rule[1]>0)
     elif rule[0]=="n":
         teamNum=rule[1]
-        
-    print("  %d guys"  % memberNum)
-    print("  %d teams" % teamNum)
-    
-    random.seed()
-    random.shuffle(members)
     
     teams=[]
+    pastNum=[]
     for i in range(teamNum):
         teams.append( [] )
-    
-    for i in range(len(members)):
-        teams[int(i%teamNum)].append( members[i] )
+        pastNum.append( [] )
         
+    random.shuffle(members)
+    for k in range( len(members) ):
+        num=-1
+        for i in range( len(pastTeams) ):
+            if members[k] in pastTeams[i]:
+                num=i
+                break
+        teams[int(k%teamNum)].append( members[k] )
+        pastNum[int(k%teamNum)].append( num )
+    
+    token=[]
+    for i in range(teamNum):
+        token.append( [] )
+        for k in range( len(teams[i]) ):
+            token[i].append( "" )
+            if pastNum[i][k]>-1 and pastNum[i].count(pastNum[i][k])>=2:
+                token[i][k]="**"
+            print(str(i)+" "+teams[i][k]+":"+str(pastNum[i][k])+","+str( pastNum[i].count(pastNum[i][k]) ) )
+            
     for i in range(teamNum):
         m+="#%d\n" % (i+1)
-        for member in teams[i]:
-            m+="　%s\n" % member
+        for k in range( len(teams[i]) ):
+            m+="　%s%s%s\n" % (token[i][k], teams[i][k], token[i][k])
+    
+    pastTeams=teams
     
     return m
 
@@ -402,6 +419,7 @@ async def on_ready():
     print('Logged in as')
     print("  name: %s" % bot.user.name)
     print("  id:   %s" % bot.user.id)
+    random.seed()
     
     try:
         file=open(iniFile , 'r')
@@ -427,7 +445,8 @@ async def on_message(message):
             """ send message """
             await bot.send_message(message.channel, m)
     except:
-        m="**```\n"+str(sys.exc_info())+"\n```**"
+        m ="エラー発生\n"
+        m+="**```\n"+str(sys.exc_info())+"\n```**"
         await bot.send_message(message.channel, m)
         
 
