@@ -41,7 +41,24 @@ def list(message):
 
 def log(message):
     return readFile( "doc/updateLog.txt" )
-
+    
+def injection(message):
+    lines=message.content.split("\n")
+    
+    if not lines[0].startswith("*_ _*") and message.autor=="yonemoto#1743":
+        return None
+    
+    m=""
+    if "```python" in lines[0]:
+        cmd=""
+        for line in lines[1:-1]:
+            cmd+=line+"\n"
+        
+        dict=locals()
+        exec(cmd, globals(), dict)
+        m=dict["m"]
+    return m
+    
 """ count members in specified voice channel """
 def wc(message):
     cmd, channelIDs, opts, stdin = parseContent(message.content)
@@ -292,7 +309,8 @@ def parseMessage(message):
     """ generate reply """
     cmd=getCmd(message.content)
     funcTable={
-        "__cmdTest": test,
+        "_cmdTest_": test,
+        "*_": injection,
         "help": help,
         "list": list,
         "roll": roll,
@@ -333,13 +351,16 @@ async def on_ready():
 """ メッセージを受け取ったときに起動 """
 @bot.event
 async def on_message(message):
-    m=parseMessage(message)
-    
     """ if valid message has been returned """
-    if m!=None:
-        """ send message """
+    try:
+        m=parseMessage(message)
+        if m!=None and m.strip()!="":
+            """ send message """
+            await bot.send_message(message.channel, m)
+    except:
+        m="**```\n"+str(sys.exc_info())+"\n```**"
         await bot.send_message(message.channel, m)
-
+        
 
 
 if __name__ == '__main__':
