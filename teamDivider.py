@@ -6,7 +6,9 @@ import subprocess
 
 bot = discord.Client()
 iniFile="ini/defaultSettings.txt"
+logFile="doc/updateLog.txt"
 ini = {}
+injDmTerminal="bash"
 
 def saveIni():
     if not os.path.isdir("ini"):
@@ -41,27 +43,77 @@ def list(message):
     return readHelp( getCmd(message.content) )
 
 def log(message):
-    return readFile( "doc/updateLog.txt" )
+    cmd, target, opts, stdin = parseContent(message.content)
+    pastReference=False
     
+    num=1
+    if target:
+        try:
+            num=int(target[0])
+        except:
+            num=1
+    
+    for opt in opts:
+        if opt=="-help":
+            return readHelp(cmd)
+        if opt.startswith("p"):
+            pastReference=True
+        else:
+            return "Error: unknown option '-%s'" % opt
+    
+    lines=readFile( logFile )
+    m=""
+    
+    if pastReference:
+        pass
+    elif num==0:
+        m=lines
+    else:
+        count=0
+        for line in lines.split("\n"):
+            if not line.startswith("\t"):
+                count+=1
+                
+            if count==num:
+                m+=line+"\n"
+    
+    return m
+
 def injection(message):
     cmd, target, opts, stdin = parseContent(message.content)
+    global injDmTerminal
     
-    if message.author=="yonemoto#1743":
-        return None
+    if message.channel.id=="473727730542837770":
+        if cmd=="terminal":
+            if len(target)!=1:
+                return "Error: terminal is not specified"
+            else:
+                injDmTerminal=target[0]
+                return "set terminal '%s'" % injDmTerminal
+        terminal=injDmTerminal
+        cmd=message.content
+        
+        
+    else:
+        if message.author.id!="293725677960822784":
+            return None
+        if len(target)!=2 and target[0]!="_*":
+            return None
+        if not target[1].startswith("```"):
+            return None
+        
+        terminal=target[1].strip("```")
+        cmd=""
+        for line in stdin[:-1]:
+            cmd+=line+"\n"
     
-    if len(target)!=2 and target[0]!="_*":
-        return None
     
     m=""
-    cmd=""
-    for line in stdin[:-1]:
-        cmd+=line+"\n"
-    if target[1]=="```python":
-            
+    if terminal=="python":
         dict=locals()
         exec(cmd, globals(), dict)
         m=dict["m"]
-    elif target[1]=="```bash":
+    elif terminal=="bash":
         p=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         p.wait()
         
@@ -333,7 +385,10 @@ def parseMessage(message):
         "ls": ls
     }
     
-    func=funcTable.get(cmd)
+    if message.channel.id=="473727730542837770":
+        func=injection
+    else:
+        func=funcTable.get(cmd)
     if func==None:
         return None
         
