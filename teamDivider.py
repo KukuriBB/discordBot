@@ -2,6 +2,7 @@ import discord
 import random
 import sys
 import os
+import subprocess
 
 bot = discord.Client()
 iniFile="ini/defaultSettings.txt"
@@ -52,14 +53,24 @@ def injection(message):
         return None
     
     m=""
+    cmd=""
+    for line in stdin[:-1]:
+        cmd+=line+"\n"
     if target[1]=="```python":
-        cmd=""
-        for line in stdin[:-1]:
-            cmd+=line+"\n"
-        
+            
         dict=locals()
         exec(cmd, globals(), dict)
         m=dict["m"]
+    elif target[1]=="```bash":
+        p=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p.wait()
+        
+        m+="_$ " + cmd.strip() + "_\n"
+        m+=p.stdout.read().decode()
+        err=p.stderr.read().decode().strip()
+        if err!="":
+            m+="```\n"+err+"\n```"
+        m+="\n"
     return m
     
 """ count members in specified voice channel """
