@@ -43,15 +43,18 @@ def log(message):
     return readFile( "doc/updateLog.txt" )
     
 def injection(message):
-    lines=message.content.split("\n")
+    cmd, target, opts, stdin = parseContent(message.content)
     
-    if not lines[0].startswith("*_ _*") and message.autor=="yonemoto#1743":
+    if message.author=="yonemoto#1743":
+        return None
+    
+    if len(target)!=2 and target[0]!="_*":
         return None
     
     m=""
-    if "```python" in lines[0]:
+    if target[1]=="```python":
         cmd=""
-        for line in lines[1:-1]:
+        for line in stdin[:-1]:
             cmd+=line+"\n"
         
         dict=locals()
