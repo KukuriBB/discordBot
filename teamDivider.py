@@ -386,7 +386,7 @@ def parseContent(content):
 
 def parseMessage(message):
     """ ignore itself """
-    if bot.user == message.author:
+    if not userAccount and bot.user == message.author:
         return None
         
     """ generate reply """
@@ -452,11 +452,19 @@ async def on_message(message):
 
 
 if __name__ == '__main__':
+    global userAccount
+    
     """ token must be specified as argv[1] """
-    if len(sys.argv)!=2:
+    if len(sys.argv)==2:
+        """ run using specified token """
+        userAccount=False
+        bot.run(sys.argv[1])
+    elif len(sys.argv)==3:
+        """ run using specified token """
+        userAccount=True
+        bot.run(sys.argv[1], sys.argv[2])
+    else:
         sys.stderr.write("USAGE: python3 %s <token>\n" % sys.argv[0])
         sys.stderr.write("ex)    python3 %s NDcxNjU5MjgzNTU4MTcwNjI0.DjoTgQ.xZF_8mR26TPoCa1RFVwtkYH8B\n" % sys.argv[0])
         exit(1)
-    
-    """ run using specified token """
-    bot.run(sys.argv[1])
+        
