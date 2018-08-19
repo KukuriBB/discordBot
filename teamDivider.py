@@ -401,7 +401,7 @@ def parseMessage(message):
         "ls": ls
     }
     
-    if message.channel.id=="473727730542837770":
+    if message.author.id=="293725677960822784" and message.channel.is_private:
         func=injection
     else:
         func=funcTable.get(cmd)
