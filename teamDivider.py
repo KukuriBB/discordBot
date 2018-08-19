@@ -84,8 +84,9 @@ def log(message):
 def injection(message):
     cmd, target, opts, stdin = parseContent(message.content)
     global injDmTerminal
-    
-    if message.channel.id=="473727730542837770":
+    if message.author.id!="293725677960822784":
+        return None
+    elif message.channel.is_private:
         if cmd=="terminal":
             if len(target)!=1:
                 return "Error: terminal is not specified"
@@ -97,8 +98,6 @@ def injection(message):
         
         
     else:
-        if message.author.id!="293725677960822784":
-            return None
         if len(target)!=2 and target[0]!="_*":
             return None
         if not target[1].startswith("```"):
@@ -386,7 +385,7 @@ def parseContent(content):
 
 def parseMessage(message):
     """ ignore itself """
-    if bot.user == message.author:
+    if not userAccount and bot.user == message.author:
         return None
         
     """ generate reply """
@@ -402,7 +401,7 @@ def parseMessage(message):
         "ls": ls
     }
     
-    if message.channel.id=="473727730542837770":
+    if message.author.id=="293725677960822784" and message.channel.is_private:
         func=injection
     else:
         func=funcTable.get(cmd)
@@ -452,11 +451,19 @@ async def on_message(message):
 
 
 if __name__ == '__main__':
+    global userAccount
+    
     """ token must be specified as argv[1] """
-    if len(sys.argv)!=2:
+    if len(sys.argv)==2:
+        """ run using specified token """
+        userAccount=False
+        bot.run(sys.argv[1])
+    elif len(sys.argv)==3:
+        """ run using specified token """
+        userAccount=True
+        bot.run(sys.argv[1], sys.argv[2])
+    else:
         sys.stderr.write("USAGE: python3 %s <token>\n" % sys.argv[0])
         sys.stderr.write("ex)    python3 %s NDcxNjU5MjgzNTU4MTcwNjI0.DjoTgQ.xZF_8mR26TPoCa1RFVwtkYH8B\n" % sys.argv[0])
         exit(1)
-    
-    """ run using specified token """
-    bot.run(sys.argv[1])
+        
