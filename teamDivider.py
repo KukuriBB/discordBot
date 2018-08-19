@@ -84,8 +84,9 @@ def log(message):
 def injection(message):
     cmd, target, opts, stdin = parseContent(message.content)
     global injDmTerminal
-    
-    if message.channel.id=="473727730542837770":
+    if message.author.id!="293725677960822784":
+        return None
+    elif message.channel.is_private:
         if cmd=="terminal":
             if len(target)!=1:
                 return "Error: terminal is not specified"
@@ -97,8 +98,6 @@ def injection(message):
         
         
     else:
-        if message.author.id!="293725677960822784":
-            return None
         if len(target)!=2 and target[0]!="_*":
             return None
         if not target[1].startswith("```"):
